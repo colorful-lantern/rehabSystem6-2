@@ -1,4 +1,6 @@
-# リハビリテーションシステム (Rehabilitation System)
+# リハビリテーションシステム (rehabSystem5)
+
+**Version 5.0**
 
 このプロジェクトは、リハビリテーション管理のためのWebアプリケーションです。
 
