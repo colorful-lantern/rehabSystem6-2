@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>管理者画面 - マイリハビリ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #c2e2ed;
+            font-size: 16px;
+        }
+
+        #adminContent {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem;
+            min-height: 70vh;
+        }
+
+        .admin-data-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #dee2e6;
+        }
+
+        .admin-data-item.has-data {
+            border-left-color: #198754;
+        }
+
+        .admin-data-item.no-data {
+            border-left-color: #dc3545;
+        }
+
+        .rehab-type {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .delete-btn {
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
+        .day-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+
+        .day-header {
+            font-weight: bold;
+            color: #495057;
+            padding: 1rem;
+            margin: 0;
+            cursor: pointer;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            transition: background-color 0.2s;
+        }
+
+        .day-header:hover {
+            background: #e9ecef;
+        }
+
+        .day-header i {
+            transition: transform 0.2s;
+        }
+
+        .day-content {
+            padding: 1rem;
+            display: none;
+        }
+
+        .day-content.show {
+            display: block;
+        }
+
+        .month-index {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .month-btn {
+            margin: 0.25rem;
+            min-width: 120px;
+        }
+
+        .month-section {
+            margin-bottom: 2rem;
+        }
+
+        .month-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .collapse-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .no-data-message {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+    </style>
+  </head>
+  <body>
+    <!-- パスワード認証モーダル -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="passwordModalLabel">管理者認証</h5>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="adminPassword" class="form-label">管理者パスワードを入力してください</label>
+              <input type="password" class="form-control" id="adminPassword" autocomplete="current-password">
+            </div>
+            <div id="passwordError" class="text-danger d-none">パスワードが間違っています。</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="goBack()">キャンセル</button>
+            <button type="button" class="btn btn-primary" onclick="checkPassword()">認証</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 削除確認モーダル -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteConfirmModalLabel">削除確認</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="deleteConfirmMessage">この記録を削除しますか？</p>
+            <div class="alert alert-warning" role="alert">
+              <i class="bi bi-exclamation-triangle"></i>
+              削除したデータは復元できません。
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">削除する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg" style="background-color: #c2e2ed;">
+      <div class="container-fluid d-flex m-auto">
+        <p class="navbar-brand fw-bold fs-3 text-black ms-1 my-1 me-0" id="title">マイリハビリ</p>
+      </div>
+    </nav>
+
+    <div id="adminContent" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">過去のリハビリ記録</h4>
+        <button class="btn btn-outline-primary btn-sm" onclick="refreshData()">
+          <i class="bi bi-arrow-clockwise"></i> 更新
+        </button>
+      </div>
+      
+      <div id="dataContainer">
+        <!-- データがここに動的に生成されます -->
+      </div>
+      
+      <div class="text-center mt-4 mb-4">
+        <button class="btn btn-danger" onclick="clearAllData()">
+          <i class="bi bi-trash"></i> すべてのデータを削除
+        </button>
+      </div>
+    </div>
+
+    <div id="footer" class="container-fluid">
+      <div class="fixed-bottom bg-white m-auto"
+           style="border-radius: 26px; left: 0; right: 0; width: 95%; max-width: 600px; bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
+        <div class="row m-auto p-0" style="border-radius: 16px;">
+          <div class="col-3">
+            <div id="homebtn" class="text-center m-auto">
+              <a href="index.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-house-fill fw-bold" style="font-size: 2rem;"></i><br>
+              きょう</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="calbtn" class="text-center m-auto">
+              <a href="calender.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-calendar2-week fw-bold" style="font-size: 2rem;"></i><br>
+              きろく</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="explainbtn" class="text-center m-auto">
+              <a href="explain.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-question-circle fw-bold" style="font-size: 2rem;"></i><br>
+              使い方</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="settingbtn" class="text-center m-auto">
+              <a href="setting.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+              <i class="bi bi-gear-fill fw-bold" style="font-size: 2rem;"></i><br>
+              設定</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height: 200px;"></div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // 管理者パスワード（本来はサーバーサイドで管理すべき）
+        const ADMIN_PASSWORD = "admin2025";
+        
+        // リハビリタイプの名前マッピング
+        const REHAB_NAMES = {
+            0: '理学療法',
+            1: '言語療法', 
+            2: '作業療法',
+            3: '心理療法'
+        };
+
+        // ページ読み込み時にパスワードモーダルを表示
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+            passwordModal.show();
+
+            // Enterキーでパスワード認証
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+        });
+
+        // パスワードチェック
+        function checkPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('passwordError');
+            
+            if (password === ADMIN_PASSWORD) {
+                const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
+                passwordModal.hide();
+                document.getElementById('adminContent').classList.remove('d-none');
+                loadAdminData();
+            } else {
+                errorDiv.classList.remove('d-none');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        // 戻る
+        function goBack() {
+            window.location.href = 'setting.html';
+        }
+
+        // 管理者データを読み込み
+        function loadAdminData() {
+            const dataContainer = document.getElementById('dataContainer');
+            const allData = getAllRehabData();
+            
+            if (Object.keys(allData).length === 0) {
+                dataContainer.innerHTML = '<div class="no-data-message">リハビリ記録が見つかりませんでした。</div>';
+                return;
+            }
+
+            // 月ごとにデータを整理
+            const monthlyData = {};
+            Object.keys(allData).forEach(date => {
+                const monthKey = date.substring(0, 7); // YYYY-MM
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {};
+                }
+                monthlyData[monthKey][date] = allData[date];
+            });
+
+            // 月インデックスを生成
+            const sortedMonths = Object.keys(monthlyData).sort((a, b) => b.localeCompare(a));
+            let monthIndexHtml = '<div class="month-index">';
+            sortedMonths.forEach(month => {
+                const [year, monthNum] = month.split('-');
+                monthIndexHtml += `<button class="btn btn-outline-primary btn-sm month-btn" onclick="scrollToMonth('${month}')">${year}年${parseInt(monthNum)}月</button>`;
+            });
+            monthIndexHtml += '</div>';
+
+            let html = monthIndexHtml;
+            
+            // 日付順にソート（新しい順）
+            const sortedDates = Object.keys(allData).sort((a, b) => new Date(b) - new Date(a));
+            
+            sortedDates.forEach(date => {
+                const dateData = allData[date];
+                const formattedDate = formatDate(date);
+                const monthKey = date.substring(0, 7);
+                
+                // 実施済みのリハビリのみを収集
+                const completedRehabs = [];
+                for (let i = 0; i <= 3; i++) {
+                    if (dateData[i] === true) {
+                        completedRehabs.push({
+                            index: i,
+                            name: REHAB_NAMES[i]
+                        });
+                    }
+                }
+                
+                // 実施済みのリハビリがある場合のみ表示
+                if (completedRehabs.length > 0) {
+                    html += `<div class="day-section" data-month="${monthKey}">`;
+                    html += `<div class="day-header" onclick="toggleDay(this)">
+                        <span>${formattedDate} (${completedRehabs.length})</span>
+                        <div>
+                            <button class="btn btn-danger btn-sm me-2" onclick="event.stopPropagation(); deleteAllDayRecords('${date}', '${formattedDate}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>`;
+                    html += `<div class="day-content">`;
+                    
+                    // 実施済みリハビリのみ表示
+                    completedRehabs.forEach(rehab => {
+                        html += `
+                            <div class="admin-data-item has-data">
+                                <div>
+                                    <div class="fw-bold">${rehab.name}</div>
+                                    <div class="rehab-type">
+                                        <i class="bi bi-check-circle-fill text-success"></i> 実施済み
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-sm delete-btn" 
+                                        onclick="confirmDelete('${date}', ${rehab.index}, '${rehab.name}', '${formattedDate}')">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+            });
+            
+            dataContainer.innerHTML = html;
+        }
+
+        // アコーディオンの開閉
+        function toggleDay(headerElement) {
+            const daySection = headerElement.parentElement;
+            const dayContent = daySection.querySelector('.day-content');
+            const chevron = headerElement.querySelector('.bi-chevron-down, .bi-chevron-up');
+            
+            if (dayContent.classList.contains('show')) {
+                dayContent.classList.remove('show');
+                chevron.className = 'bi bi-chevron-down';
+            } else {
+                dayContent.classList.add('show');
+                chevron.className = 'bi bi-chevron-up';
+            }
+        }
+
+        // 月にスクロール
+        function scrollToMonth(monthKey) {
+            const firstSectionOfMonth = document.querySelector(`[data-month="${monthKey}"]`);
+            if (firstSectionOfMonth) {
+                firstSectionOfMonth.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // 自動的に展開
+                const header = firstSectionOfMonth.querySelector('.day-header');
+                const content = firstSectionOfMonth.querySelector('.day-content');
+                if (!content.classList.contains('show')) {
+                    toggleDay(header);
+                }
+            }
+        }
+
+        // 特定の日のすべての記録を削除
+        function deleteAllDayRecords(date, formattedDate) {
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            const messageElement = document.getElementById('deleteConfirmMessage');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            
+            messageElement.innerHTML = `
+                <strong>${formattedDate}</strong><br>
+                この日のすべての記録を削除しますか？
+            `;
+            
+            // 削除ボタンのクリックイベントを設定
+            confirmBtn.onclick = function() {
+                const today = new Date().toISOString().split('T')[0];
+                
+                if (date === today) {
+                    // 今日のデータを削除
+                    for (let i = 0; i <= 3; i++) {
+                        localStorage.removeItem(`each${i}`);
+                    }
+                    // status_も削除して完全にクリア
+                    localStorage.removeItem(`status_${today}`);
+                } else {
+                    // 過去のデータを削除
+                    localStorage.removeItem(`status_${date}`);
+                }
+                
+                modal.hide();
+                loadAdminData();
+                showSuccessMessage(`${formattedDate}の記録をすべて削除しました。`);
+            };
+            
+            modal.show();
+        }
+
+        // すべてのデータを削除
+        function clearAllData() {
+            if (confirm('すべてのデータを削除しますか？\nこの操作は取り消せません。')) {
+                window.location.href = 'index.html?clear=true';
+            }
+        }
+
+        // すべてのリハビリデータを取得
+        function getAllRehabData() {
+            const data = {};
+            const today = new Date().toISOString().split('T')[0];
+            
+            // 現在の各リハビリの状態をチェック（今日の分）
+            let hasTodayData = false;
+            for (let i = 0; i <= 3; i++) {
+                // each0~3のみをチェック（ランダムIDは使用しない）
+                let eachKey = `each${i}`;
+                let storedData = localStorage.getItem(eachKey);
+                
+                if (storedData !== null) {
+                    if (!data[today]) {
+                        data[today] = {};
+                    }
+                    data[today][i] = storedData === 'true';
+                    hasTodayData = true;
+                }
+            }
+            
+            // status_キーから過去の日付データを取得
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('status_')) {
+                    const date = key.split('_')[1];
+                    const statusValue = localStorage.getItem(key);
+                    
+                    if (statusValue) {
+                        if (!data[date]) {
+                            data[date] = {};
+                        }
+                        
+                        if (statusValue.includes(',')) {
+                            // "1,each0=true,each1=false" のような形式を解析
+                            const parts = statusValue.split(',');
+                            
+                            for (let i = 1; i < parts.length; i++) {
+                                const part = parts[i];
+                                if (part.includes('=')) {
+                                    const [keyPart, value] = part.split('=');
+                                    
+                                    // each0~3の形式のみ処理（ランダムIDは無視）
+                                    if (keyPart.startsWith('each')) {
+                                        const rehabIndex = parseInt(keyPart.replace('each', ''));
+                                        if (!isNaN(rehabIndex) && rehabIndex >= 0 && rehabIndex <= 3) {
+                                            data[date][rehabIndex] = value === 'true';
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (statusValue === 'clear') {
+                            // "clear"の場合、すべてのリハビリが実施済みと仮定
+                            // ただし、どのリハビリが有効かは設定から取得
+                            for (let i = 0; i <= 3; i++) {
+                                const rehabKey = `rehabilitation${i + 1}`;
+                                const isEnabled = localStorage.getItem(rehabKey) === 'true';
+                                if (isEnabled) {
+                                    data[date][i] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            return data;
+        }
+
+        // 日付フォーマット
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+            
+            return `${year}年${month}月${day}日（${dayOfWeek}）`;
+        }
+
+        // 削除確認
+        function confirmDelete(date, rehabIndex, rehabName, formattedDate) {
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            const messageElement = document.getElementById('deleteConfirmMessage');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            
+            messageElement.innerHTML = `
+                <strong>${formattedDate}</strong><br>
+                <strong>${rehabName}</strong>の記録を削除しますか？
+            `;
+            
+            // 削除ボタンのクリックイベントを設定
+            confirmBtn.onclick = function() {
+                deleteRehabRecord(date, rehabIndex);
+                modal.hide();
+            };
+            
+            modal.show();
+        }
+
+        // リハビリ記録を削除
+        function deleteRehabRecord(date, rehabIndex) {
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (date === today) {
+                // 今日のデータの場合：LocalStorageから直接削除
+                const eachKey = `each${rehabIndex}`;
+                localStorage.removeItem(eachKey);
+                
+                // 今日のstatus_を更新（削除後に自動再生成しない）
+                updateStatusDataAfterDelete();
+            } else {
+                // 過去のデータの場合：status_データを更新
+                updatePastStatusData(date, rehabIndex);
+            }
+            
+            // データを再読み込み
+            loadAdminData();
+            
+            // 成功メッセージ
+            showSuccessMessage('記録を削除しました。');
+        }
+
+        // 過去のstatus_データを更新
+        function updatePastStatusData(date, rehabIndex) {
+            const statusKey = `status_${date}`;
+            const statusValue = localStorage.getItem(statusKey);
+            
+            if (!statusValue) return;
+            
+            if (statusValue === 'clear') {
+                // "clear"の場合、該当リハビリをfalseにして再構築
+                let achievedStatus = [];
+                let cnt = 0;
+                
+                for (let i = 0; i <= 3; i++) {
+                    const rehabKey = `rehabilitation${i + 1}`;
+                    const isEnabled = localStorage.getItem(rehabKey) === 'true';
+                    
+                    if (isEnabled) {
+                        if (i === rehabIndex) {
+                            achievedStatus.push(`each${i}=false`);
+                        } else {
+                            achievedStatus.push(`each${i}=true`);
+                            cnt++;
+                        }
+                    }
+                }
+                
+                const totalRehabilitations = parseInt(localStorage.getItem('numberofClass') || 0);
+                let newStatusValue = '';
+                
+                if (cnt === totalRehabilitations && totalRehabilitations > 0) {
+                    newStatusValue = 'clear';
+                } else {
+                    newStatusValue = cnt.toString();
+                }
+                
+                if (achievedStatus.length > 0) {
+                    newStatusValue += ',' + achievedStatus.join(',');
+                }
+                
+                if (cnt === 0) {
+                    localStorage.removeItem(statusKey);
+                } else {
+                    localStorage.setItem(statusKey, newStatusValue);
+                }
+            } else if (statusValue.includes(',')) {
+                // "1,each0=true,each1=false" のような形式を更新
+                const parts = statusValue.split(',');
+                const updatedParts = [parts[0]]; // 最初の数字部分は仮保持
+                
+                for (let i = 1; i < parts.length; i++) {
+                    const part = parts[i];
+                    if (part.includes('=')) {
+                        const [eachKey, value] = part.split('=');
+                        const currentRehabIndex = parseInt(eachKey.replace('each', ''));
+                        
+                        if (currentRehabIndex === rehabIndex) {
+                            // 削除対象のリハビリは false に変更
+                            updatedParts.push(`${eachKey}=false`);
+                        } else {
+                            // その他はそのまま保持
+                            updatedParts.push(part);
+                        }
+                    }
+                }
+                
+                // 達成数を再計算
+                let trueCount = 0;
+                for (let i = 1; i < updatedParts.length; i++) {
+                    if (updatedParts[i].endsWith('=true')) {
+                        trueCount++;
+                    }
+                }
+                
+                // 最初の数字部分を更新
+                const totalRehabilitations = parseInt(localStorage.getItem('numberofClass') || 0);
+                if (trueCount === totalRehabilitations && totalRehabilitations > 0) {
+                    updatedParts[0] = 'clear';
+                } else {
+                    updatedParts[0] = trueCount.toString();
+                }
+                
+                // 更新されたデータを保存
+                if (trueCount === 0) {
+                    // すべて false の場合は削除
+                    localStorage.removeItem(statusKey);
+                } else {
+                    localStorage.setItem(statusKey, updatedParts.join(','));
+                }
+            }
+        }
+
+        // status_データを更新（削除後専用、自動再生成を防ぐ）
+        function updateStatusDataAfterDelete() {
+            let cnt = 0;
+            let achievedStatus = [];
+            
+            // 実際に存在するeach0~3のみをチェック
+            for (let i = 0; i <= 3; i++) {
+                let key = `each${i}`;
+                let value = localStorage.getItem(key);
+                
+                const key2 = `rehabilitation${i + 1}`;
+                const value2 = localStorage.getItem(key2);
+                
+                // 取り組むリハビリかつ実際にデータが存在する場合のみ記録
+                if (value2 === 'true' && value !== null) {
+                    if (value === 'true') {
+                        cnt++;
+                        achievedStatus.push(`each${i}=true`);
+                    } else {
+                        achievedStatus.push(`each${i}=false`);
+                    }
+                }
+            }
+            
+            // 今日の日付のstatus_を更新
+            const today = new Date().toISOString().split('T')[0];
+            const totalRehabilitations = parseInt(localStorage.getItem('numberofClass') || 0);
+            
+            if (cnt === 0 || achievedStatus.length === 0) {
+                // データが何もない場合はstatus_を削除
+                localStorage.removeItem(`status_${today}`);
+                localStorage.setItem('nmboftrue', '0');
+            } else {
+                let statusValue = '';
+                if (cnt === totalRehabilitations && totalRehabilitations > 0) {
+                    statusValue = 'clear';
+                } else {
+                    statusValue = cnt.toString();
+                }
+                
+                statusValue += ',' + achievedStatus.join(',');
+                localStorage.setItem(`status_${today}`, statusValue);
+                localStorage.setItem('nmboftrue', cnt);
+            }
+        }
+
+        // status_データを更新
+        function updateStatusData() {
+            let cnt = 0;
+            let achievedStatus = [];
+            
+            for (let i = 0; i <= 3; i++) {
+                // each0~3のみをチェック
+                let key = `each${i}`;
+                let value = localStorage.getItem(key);
+                
+                const key2 = `rehabilitation${i + 1}`;
+                const value2 = localStorage.getItem(key2);
+                
+                // 取り組むリハビリのみ記録
+                if (value2 === 'true') {
+                    if (value === 'true') {
+                        cnt++;
+                        achievedStatus.push(`each${i}=true`);
+                    } else {
+                        achievedStatus.push(`each${i}=false`);
+                    }
+                }
+            }
+            
+            localStorage.setItem('nmboftrue', cnt);
+            
+            // 今日の日付のstatus_を更新
+            const today = new Date().toISOString().split('T')[0];
+            const totalRehabilitations = parseInt(localStorage.getItem('numberofClass') || 0);
+            
+            let statusValue = '';
+            if (cnt === totalRehabilitations && totalRehabilitations > 0) {
+                statusValue = 'clear';
+            } else {
+                statusValue = cnt.toString();
+            }
+            
+            if (achievedStatus.length > 0) {
+                statusValue += ',' + achievedStatus.join(',');
+            }
+            
+            if (statusValue === '0' || statusValue === '') {
+                localStorage.removeItem(`status_${today}`);
+            } else {
+                localStorage.setItem(`status_${today}`, statusValue);
+            }
+        }
+
+        // データ更新
+        function refreshData() {
+            loadAdminData();
+            showSuccessMessage('データを更新しました。');
+        }
+
+        // 成功メッセージ表示
+        function showSuccessMessage(message) {
+            // 簡単なtoast風メッセージ
+            const toast = document.createElement('div');
+            toast.className = 'alert alert-success position-fixed';
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 1060; width: 300px;';
+            toast.innerHTML = `
+                <i class="bi bi-check-circle"></i> ${message}
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+  </body>
+</html>

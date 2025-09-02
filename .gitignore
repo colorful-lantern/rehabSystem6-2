@@ -1,0 +1,60 @@
+# === システム動作に不要なファイル ===
+
+# バックアップファイル
+*_backup.*
+*.backup
+index_backup.html
+
+# 機密情報・秘密キー
+*secret*
+*key*
+secretkey_0626.txt
+
+# プレゼンテーション・会議資料
+*.pptx
+*.pdf
+presentation_0630.txt
+MTG/
+
+# テスト・開発用ファイル
+integration_test.html
+makecode.html
+
+# 重複・代替版ファイル
+calender_2.html
+
+# 古いバージョン・アーカイブ
+0627-rehabSystem2-main/
+0701-rehabSystem-main/
+before/
+
+# QRコード（機密情報含む可能性）
+github_qrcode/
+
+# 外部ライブラリの完全版（dist版のみ使用）
+progressbar.js-master/
+
+# エディタ・IDE設定
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node.js関連
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ログファイル
+*.log
+
+# 一時ファイル
+*.tmp
+*.temp
+*.cache

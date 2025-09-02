@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイリハビリ-休日設定</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            /* カレンダーの配色設定 */
+            --calendar-body-bg: #c2e2ed;
+            --calendar-container-bg: #c2e2ed;
+            --calendar-container-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+            --btn-primary-bg: #217ea9;
+            --btn-primary-border: #217ea9;
+            --btn-primary-text: #ffffff;
+            --btn-primary-hover-bg: #006193;
+            --btn-primary-hover-border: #006193;
+            --btn-disabled-bg: #e2e6ea;
+            --btn-disabled-border: #dae0e5;
+            --btn-disabled-text: #6c757d;
+            --header-text-color: #212529;
+            --grid-border-color: #dee2e6;
+            --th-bg: #217ea9;
+            --th-text: #ffffff;
+            --td-bg: #9acfe0;
+            --td-text: #343a40;
+            --current-month-day-bg: #f2f9fb;
+            --today-bg: #fddf50;
+            --today-border: #fddf50;
+            --today-text: #000000;
+            --today-emphasis-border: #fff707;
+            --today-emphasis-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
+            --today-emphasis-bg: rgba(255, 193, 7, 0.08);
+            --empty-cell-bg: #e9ecef;
+            --empty-cell-text: #6c757d;
+            --calendar-date-font-size: 1.25rem;
+            
+            /* 休日設定用の色 */
+            --rest-day-bg: #ffc9c9;
+            --rest-day-border: #dc3545;
+            --work-day-bg: #d4edda;
+            --work-day-border: #28a745;
+            --disabled-day-bg: #f8f9fa;
+            --disabled-day-opacity: 0.4;
+        }
+
+        html, body {
+            overflow: auto;
+            height: 110%;
+        }
+        
+        body {
+            background-color: var(--calendar-body-bg);
+            margin: 0;
+            width: 100%;
+        }
+        
+        .calendar-container {
+            background-color: var(--calendar-container-bg);
+            padding: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .calendar-header .btn {
+            background-color: var(--btn-primary-bg);
+            border-color: var(--btn-primary-border);
+            color: var(--btn-primary-text);
+            padding: 0.625rem 0.9375rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border: none;
+            outline: none;
+        }
+        
+        .calendar-header .btn:hover {
+            background-color: var(--btn-primary-hover-bg);
+            border-color: var(--btn-primary-hover-border);
+        }
+        
+        .calendar-header .btn:disabled {
+            background-color: var(--btn-disabled-bg);
+            border-color: var(--btn-disabled-border);
+            color: var(--btn-disabled-text);
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+        
+        .calendar-header h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--header-text-color);
+        }
+        
+        .calendar-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .calendar-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .calendar-grid th, .calendar-grid td {
+            border: 1px solid var(--grid-border-color);
+            padding: 0.5rem;
+        }
+        
+        .calendar-grid thead th {
+            background-color: var(--th-bg);
+            color: var(--th-text);
+            text-align: center;
+            font-weight: bold;
+            padding: 1rem 0.5rem;
+        }
+        
+        .calendar-grid td {
+            background-color: var(--td-bg);
+            color: var(--td-text);
+            text-align: center;
+            vertical-align: middle;
+            height: 4rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .calendar-grid td.current-month {
+            background-color: var(--current-month-day-bg);
+        }
+        
+        .calendar-grid td.today {
+            background-color: var(--today-bg);
+            border: 2px solid var(--today-border);
+            color: var(--today-text);
+            font-weight: bold;
+        }
+        
+        .calendar-grid td.empty {
+            background-color: var(--empty-cell-bg);
+            color: var(--empty-cell-text);
+            cursor: default;
+        }
+        
+        .calendar-grid td.disabled {
+            background-color: var(--disabled-day-bg) !important;
+            opacity: var(--disabled-day-opacity);
+            cursor: not-allowed;
+        }
+        
+        /* 前月・翌月の日付スタイル */
+        .calendar-grid td.other-month {
+            background-color: #f8f9fa !important;
+            color: #adb5bd !important;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 前月・翌月の日付はホバー効果を無効化 */
+        .calendar-grid td.other-month:hover {
+            transform: none !important;
+            background-color: #f8f9fa !important;
+        }
+        
+        /* 前月・翌月の日付内のアイコンも薄く表示 */
+        .calendar-grid td.other-month .day-status-icon {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .calendar-grid td.rest-day {
+            background-color: var(--rest-day-bg) !important;
+            border: 2px solid var(--rest-day-border);
+        }
+        
+        .calendar-grid td.work-day {
+            background-color: var(--work-day-bg) !important;
+            border: 2px solid var(--work-day-border);
+        }
+        
+        /* 今日の日付強調表示 */
+        .calendar-grid td.today-emphasis {
+            border: 3px solid var(--today-emphasis-border) !important;
+            box-shadow: var(--today-emphasis-shadow);
+            background: linear-gradient(
+                var(--today-emphasis-bg), 
+                var(--today-emphasis-bg)
+            ), var(--today-bg) !important;
+        }
+        
+        .calendar-grid td.today-emphasis.rest-day {
+            background: linear-gradient(
+                var(--today-emphasis-bg), 
+                var(--today-emphasis-bg)
+            ), var(--rest-day-bg) !important;
+        }
+        
+        .calendar-grid td.today-emphasis.work-day {
+            background: linear-gradient(
+                var(--today-emphasis-bg), 
+                var(--today-emphasis-bg)
+            ), var(--work-day-bg) !important;
+        }
+        
+        .calendar-grid td .date-number {
+            font-size: var(--calendar-date-font-size);
+            font-weight: bold;
+        }
+        
+        .day-status-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            pointer-events: none;
+        }
+        
+        .icon-work {
+            color: #28a745;
+        }
+        
+        .icon-rest {
+            color: #dc3545;
+        }
+        
+        .save-button-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .btn-save {
+            background-color: var(--btn-primary-bg);
+            border-color: var(--btn-primary-border);
+            color: var(--btn-primary-text);
+            font-size: 1.2rem;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .btn-save:hover {
+            background-color: var(--btn-primary-hover-bg);
+            border-color: var(--btn-primary-hover-border);
+        }
+        
+        .legend {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .legend-work {
+            background-color: var(--work-day-bg);
+            border: 2px solid var(--work-day-border);
+        }
+        
+        .legend-rest {
+            background-color: var(--rest-day-bg);
+            border: 2px solid var(--rest-day-border);
+        }
+        
+        .legend-today {
+            background-color: var(--today-bg);
+            border: 3px solid var(--today-emphasis-border);
+            box-shadow: var(--today-emphasis-shadow);
+        }
+        
+        .legend-today-box {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--today-text);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 576px) {
+            .calendar-header h2 {
+                font-size: 1.5rem;
+            }
+            .calendar-grid td {
+                height: 3rem;
+            }
+            .calendar-grid td .date-number {
+                font-size: 1rem;
+            }
+            .day-status-icon {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background-color: #c2e2ed;">
+        <div class="container-fluid d-flex m-auto">
+            <p class="navbar-brand fw-bold fs-3 text-black ms-1 my-1 me-0" id="title">マイリハビリ</p>
+        </div>
+    </nav>
+
+    <div class="calendar-container p-4">
+        <div class="text-center mb-3">
+            <h3 class="text-black">お休みの日を設定</h3>
+            <p class="text-muted">日付をクリックして○（取り組む日）と×（お休みの日）を切り替えられます</p>
+            <p class="text-muted"><small>※1か月後の月末まで事前に設定できます</small></p>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon legend-work">
+                    <i class="bi bi-circle icon-work"></i>
+                </div>
+                <span>取り組む日</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon legend-rest">
+                    <i class="bi bi-x icon-rest"></i>
+                </div>
+                <span>お休みの日</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon legend-today">
+                    <div class="legend-today-box"></div>
+                </div>
+                <span>今日の日付</span>
+            </div>
+        </div>
+        
+        <div class="calendar-header">
+            <button class="btn" id="prevMonthBtn">
+                <i class="bi bi-chevron-left"></i> 前の月
+            </button>
+            <h2 id="currentMonthYear"></h2>
+            <button class="btn" id="nextMonthBtn">
+                次の月 <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="calendar-table-wrapper">
+            <table class="calendar-grid">
+                <thead>
+                    <tr>
+                        <th>日</th>
+                        <th>月</th>
+                        <th>火</th>
+                        <th>水</th>
+                        <th>木</th>
+                        <th>金</th>
+                        <th>土</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody">
+                    <!-- カレンダーの日付がここに動的に生成されます -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="save-button-container">
+            <button class="btn btn-save" id="saveSettings">
+                <i class="bi bi-check-lg"></i> 設定を保存
+            </button>
+        </div>
+        
+        <!-- <div class="text-center mb-4">
+            <a href="setting.html" class="btn btn-outline-secondary" style="font-size: 1.1rem; padding: 0.6rem 1.5rem; border-radius: 12px;">
+                <i class="bi bi-arrow-left"></i> 設定ページに戻る
+            </a>
+        </div> -->
+    </div>
+
+    <!-- フッター -->
+    <div id="footer" class="container-fluid">
+        <div class="fixed-bottom bg-white m-auto"
+             style="border-radius: 26px; left: 0; right: 0; width: 95%; max-width: 600px; bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
+            <div class="row m-auto p-0" style="border-radius: 16px;">
+                <div class="col-3">
+                    <div id="homebtn" class="text-center m-auto">
+                        <a href="index.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                            <i class="bi bi-house-fill fw-bold" style="font-size: 2rem;"></i><br>
+                            きょう
+                        </a>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div id="calbtn" class="text-center m-auto">
+                        <a href="calender.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                            <i class="bi bi-calendar2-week fw-bold" style="font-size: 2rem;"></i><br>
+                            きろく
+                        </a>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div id="explainbtn" class="text-center m-auto">
+                        <a href="explain.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                            <i class="bi bi-question-circle fw-bold" style="font-size: 2rem;"></i><br>
+                            使い方
+                        </a>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div id="settingbtn" class="text-center m-auto">
+                        <a href="setting.html" class="btn btn-link text-primary text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                            <i class="bi bi-gear-fill fw-bold" style="font-size: 2rem;"></i><br>
+                            設定
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="height: 200px;"></div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="js/config.js"></script>
+    <script src="js/rest_calendar.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+#container {
+    margin: 20px;
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+
+.eachcontainer {
+    /* Bootstrapのcolクラスと併用するため、widthとheightは削除または調整 */
+    /* flex-basis: 0; flex-grow: 1; と組み合わせることで、colが均等に幅を占める */
+    /* marginはBootstrapのpaddingユーティリティで調整する方が良い場合が多い */
+    /* width: 50px; */
+    /* height: 50px; */
+    position: relative;
+    margin: 5px; /* 各コンテナ間の間隔を維持 */
+    display: flex; /* コンテンツを中央に配置するためにflexboxを使用 */
+    justify-content: center;
+    align-items: center;
+    min-height: 50px; /* 最小高さを設定して内容が少ない場合でも表示を維持 */
+    border: 1px solid #ddd; /* 視覚的な区切りを追加 */
+    border-radius: 5px;
+}
+
+#dividestatus{
+    width: 100%;
+    height: auto;
+    position: relative;
+    /* overflow-x: auto; を追加して、内容がはみ出た場合にスクロール可能にする */
+    /* ただし、今回のレイアウトでは不要な場合もある */
+}
+
+#weekly-status-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.weekly-status-item {
+  flex: 1;
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin: 0 5px;
+  background-color: #f8f9fa;
+  position: relative;
+  /*min-width: 80px; /* ボックスの最小幅を設定 */
+}
+
+.day-of-week {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.status-number {
+  font-size: 1.5rem;
+  color: #333;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px; /* 高さを固定 */
+}
+
+.check-mark {
+  position: relative; /* 親要素内で中央に配置 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px; /* チェックマークのサイズを固定 */
+  height: 24px;
+  margin: 0 auto; /* 中央揃え */
+}
+
+.white-text {
+  /* テキストを透明にする */
+    color: transparent;
+}
+
+/* フッターの固定を強化するためのスタイル */
+/* bodyにoverflow-x: hidden; を追加して横スクロールを抑制 */
+body {
+    overflow-x: hidden;
+}
+
+/* クラッカーアニメーションの粒子がフッターに影響を与えないようにz-indexを設定 */
+.cracker-animation-area {
+    z-index: 10; /* 他のコンテンツより手前に表示 */
+}
+
+#footer {
+    z-index: 20; /* フッターを常に最前面に表示 */
+}
+
+/* 底部テキストのアニメーション効果 */
+.bottom-text-fade {
+    transition: opacity 0.5s ease-in-out;
+}
+
+.bottom-text-hidden {
+    opacity: 0;
+}
+
+.bottom-text-visible {
+    opacity: 1;
+}
+
+/* プログレスバー内のテキストエリア用 */
+.progress-text-container {
+    position: relative;
+}
+
+.progress-bottom-text {
+    transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+}
+
+.progress-bottom-text.fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.progress-bottom-text.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}

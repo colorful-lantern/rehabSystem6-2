@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイリハビリ-きろく</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /*
+         * カレンダーの配色設定を一括で管理するCSS変数
+         * これらの変数の値を変更するだけで、カレンダー全体のテーマカラーを変更できます。
+         */
+        :root {
+            /* 全体の背景色 */
+            --calendar-body-bg: #c2e2ed; /* ライトブルーグレー */
+
+            /* カレンダーコンテナの背景と影 */
+            --calendar-container-bg: #c2e2ed; /* ライトブルーグレー */
+            --calendar-container-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+
+            /* ナビゲーションボタンの色 */
+            --btn-primary-bg: #217ea9; /* 紫 */
+            --btn-primary-border: #217ea9;
+            --btn-primary-text: #ffffff;
+            --btn-primary-hover-bg: #006193; /* 暗めの紫 */
+            --btn-primary-hover-border: #006193;
+            --btn-disabled-bg: #e2e6ea; /* 無効ボタンの背景色 */
+            --btn-disabled-border: #dae0e5; /* 無効ボタンの枠線の色 */
+            --btn-disabled-text: #6c757d; /* 無効ボタンのテキスト色 */
+
+
+            /* ヘッダーの月/年テキストの色 */
+            --header-text-color: #212529; /* 暗めのテキスト */
+
+            /* グリッドとセルの境界線の色 */
+            --grid-border-color: #dee2e6; /* 薄いグレー */
+
+            /* 曜日ヘッダーの背景とテキストの色 */
+            --th-bg:#217ea9; /* 薄い青 */
+            --th-text: #ffffff; /* 暗めの青 */
+
+            /* 日付セルの背景とテキストの色 */
+            --td-bg: #9acfe0;
+            --td-text: #343a40; /* 暗めのテキスト */
+
+            /* 現在の月の日の背景色 */
+            --current-month-day-bg: #f2f9fb; /* 非常に薄いグレー */
+
+            /* 今日の日付の背景、境界線、テキストの色 */
+            --today-bg: #fddf50; /* 薄い青 */
+            --today-border: #fddf50; /* 青 */
+            --today-text: #000000; /* 暗い青 */
+
+            /* 空のセルの背景色とテキストの色 (前月/次月の日付) */
+            --empty-cell-bg: #e9ecef; /* 薄いグレー */
+            --empty-cell-text: #6c757d; /* ミュートされたテキスト色 (Bootstrapのtext-mutedに合わせる) */
+
+            /* カレンダー日付の文字サイズを一括で指定する変数 */
+            --calendar-date-font-size: 1.25rem;
+        }
+
+        html, body {
+            /* 最後までスクロールできるようにする */
+            overflow: auto;
+            height: 110%;     /* 高さを100%に */
+        }
+        body {
+            /* font-family: "Inter", sans-serif; */
+            background-color: var(--calendar-body-bg);
+            margin: 0;
+            width: 100%;
+            /* min-height: 100vh; ← 不要なら削除 */
+        }
+        .calendar-container {
+            background-color: var(--calendar-container-bg);
+            padding: 0;
+            width: 100%; /* ← 100vwから100%に変更 */
+            /* min-height: 50vh; */
+            display: flex;
+            flex-direction: column;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .calendar-header .btn {
+            background-color: var(--btn-primary-bg);
+            border-color: var(--btn-primary-border);
+            color: var(--btn-primary-text);
+            padding: 0.625rem 0.9375rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border: none;
+            outline: none;
+        }
+        .calendar-header .btn:hover {
+            background-color: var(--btn-primary-hover-bg);
+            border-color: var(--btn-primary-hover-border);
+        }
+        /* 無効化されたボタンのスタイル */
+        .calendar-header .btn:disabled {
+            background-color: var(--btn-disabled-bg);
+            border-color: var(--btn-disabled-border);
+            color: var(--btn-disabled-text);
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+        .calendar-header h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--header-text-color);
+        }
+        .calendar-table-wrapper {
+            overflow-x: auto; /* 横スクロールを許可 */
+        }
+        .calendar-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar-grid th, .calendar-grid td {
+            border: 1px solid var(--grid-border-color);
+            padding: 0.5rem;
+            text-align: center;
+            vertical-align: top;
+            height: 120px; /* ← 縦幅を広く */
+        }
+        .calendar-grid thead th {
+            height: 28px !important;
+            min-height: 0 !important;
+            max-height: 28px !important;
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+            line-height: 1.1 !important;
+            vertical-align: middle !important;
+            color: var(--th-text);
+            background-color: var(--th-bg);
+            font-weight: 600;
+            font-size: 1rem; /* ヘッダーのフォントサイズ */
+        }
+        .calendar-grid td {
+            background-color: var(--td-bg);
+            color: var(--td-text);
+            position: relative;
+        }
+        /* クリック可能な日付セルにカーソルを合わせるとポインタに変わる */
+        .calendar-grid td.current-month {
+            cursor: pointer;
+        }
+        .calendar-grid td .date-number {
+            position: absolute;
+            top: 0.3125rem;
+            left: 0.5rem;
+            font-size: var(--calendar-date-font-size); /* ←ここを変更 */
+            font-weight: 500;
+        }
+        .calendar-grid td.current-month {
+            background-color: var(--current-month-day-bg);
+        }
+        .calendar-grid td.today {
+            background-color: var(--today-bg);
+            border: 2px solid var(--today-border);
+            font-weight: bold;
+            color: var(--today-text);
+        }
+        .calendar-grid td.empty {
+            background-color: var(--empty-cell-bg);
+            opacity: 0.6;
+        }
+        .calendar-grid td.empty .date-number {
+            color: var(--empty-cell-text); /* Ensure muted text uses the variable */
+        }
+        td .event-content {
+            font-size: 1.5rem !important; /* ← 文字サイズを大きく */
+            font-weight: bold;
+        }
+        .bi.bi-check-lg {
+            color: #1d9539 !important; /* Bootstrapの緑色 */
+        }
+        #iconlegendstatus {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 16px 16px 16px 16px;
+            padding-bottom: 0.75rem; /* 12px → 0.75rem */
+        }
+
+        /* Bootstrap's responsive utilities handle most of this, but specific overrides might be needed */
+        @media (max-width: 576px) {
+            .calendar-container {
+                padding: 15px;
+            }
+            .calendar-header h2 {
+                font-size: 1.25rem;
+            }
+            .calendar-header .btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+            .calendar-grid th, .calendar-grid td {
+                padding: 3px;
+                height: 80px; /* ← モバイル時も広めに */
+            }
+            .calendar-grid td .date-number {
+                font-size: var(--calendar-date-font-size); /* ←ここも変数を使う */
+                top: 2px;
+                left: 4px;
+            }
+            .event-content {
+                font-size: 1.1rem !important; /* モバイル時も大きめに */
+            }
+        }
+
+        /* ダッシュボードのスタイル */
+        .dashboard-container {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .dashboard-section {
+            background-color: transparent;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 12px;
+        }
+
+        .dashboard-card {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 12px 8px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .dashboard-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .dashboard-value {
+            font-size: 2.0rem;
+            font-weight: bold;
+            color: #212529;
+            line-height: 1.2;
+            margin: 4px 0;
+        }
+
+        .dashboard-rank {
+            font-size: 1.4rem;
+        }
+
+        .dashboard-unit {
+            font-size: 0.8rem;
+            color: #868e96;
+            margin-top: 4px;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 576px) {
+            .dashboard-value {
+                font-size: 1.6rem;
+            }
+            .dashboard-rank {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background-color: #c2e2ed;">
+      <div class="container-fluid d-flex m-auto">
+        <p class="navbar-brandfw-bold fw-bold fs-3 text-black ms-1 my-1 me-0" id="title">マイリハビリ</p>
+      </div>
+    </nav>
+
+    <div class="calendar-container p-4 pb-1">
+        <div class="calendar-header">
+            <button id="prevMonthBtn" class="btn"><i class="bi bi-chevron-left fw-bold fs-4"></i></button>
+            <h1 id="currentMonthYear" class="mb-0"></h1>
+            <button id="nextMonthBtn" class="btn"><i class="bi bi-chevron-right fw-bold fs-4"></i></button>
+        </div>
+        <div class="calendar-table-wrapper">
+            <table class="calendar-grid table table-bordered">
+                <thead>
+                    <tr>
+                        <th>日</th>
+                        <th>月</th>
+                        <th>火</th>
+                        <th>水</th>
+                        <th>木</th>
+                        <th>金</th>
+                        <th>土</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody">
+                    <!-- カレンダーの日付がここに動的に挿入されます -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ダッシュボード -->
+    <div class="dashboard-container mt-3 mb-3" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+        <!-- 固定指標セクション -->
+        <div class="dashboard-section mb-3">
+            <div class="row g-2">
+                <div class="col-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-label">連続記録</div>
+                        <div class="dashboard-value" id="consecutiveDays">0</div>
+                        <div class="dashboard-unit">日</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-label">合計ポイント</div>
+                        <div class="dashboard-value" id="totalPoints">0</div>
+                        <div class="dashboard-unit">ポイント</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-label">現在ランク</div>
+                        <div class="dashboard-value dashboard-rank" id="currentRank">ビギナー</div>
+                        <div class="dashboard-unit"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表示月連動指標セクション -->
+        <!--
+        <div class="dashboard-section">
+            <h6 class="dashboard-header text-center mb-3" style="font-size: 1.1rem; font-weight: bold; color: #495057;">📅 <span id="currentMonthDisplay">2024年9月</span>の記録</h6>
+            <div class="row g-2">
+                <div class="col-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-label">取組日数</div>
+                        <div class="dashboard-value" id="monthlyDays">0/0</div>
+                        <div class="dashboard-unit">日</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-label">完了日数</div>
+                        <div class="dashboard-value" id="completedDays">0</div>
+                        <div class="dashboard-unit">日</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-label">達成率</div>
+                        <div class="dashboard-value" id="achievementRate">0</div>
+                        <div class="dashboard-unit">%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
+    </div>
+
+    <!-- 休日設定ボタン（カレンダー下、説明上に追加） -->
+    <div class="d-flex justify-content-center mt-1 mb-2" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+        <a href="rest_calendar.html" class="btn btn-primary w-75 text-center" style="font-size: 1.1rem; border-radius: 12px; padding: 0.6em 0;">
+            <i class="bi bi-calendar-week"></i> 休みの日を設定する
+        </a>
+    </div>
+    <!-- カレンダー説明ボタン -->
+    <div class="d-flex justify-content-center mt-1 mb-2" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+        <button class="btn btn-secondary w-75 text-center" type="button"
+          data-bs-toggle="collapse" data-bs-target="#icon-legend"
+          aria-expanded="false" aria-controls="icon-legend"
+          style="font-size: 1.1rem; border-radius: 12px; padding: 0.6em 0;">
+          <i class="bi bi-info-circle"></i> カレンダーの説明 <span id="icon-legend-arrow">▼</span>
+        </button>
+    </div>
+    
+    <!-- 説明の吹き出し（折りたたみ可能） -->
+    <div class="collapse mt-2" id="icon-legend">
+      <div class="d-flex justify-content-center" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+        <div class="p-3 w-75" style="background: rgba(255, 255, 255, 0.95); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <table class="table table-borderless m-auto align-middle" style="max-width: 400px;">
+              <tbody>
+                <tr>
+                  <td class="text-center align-middle" style="width: 48px; vertical-align: middle;">
+                    <i class="bi bi-check-lg fs-1 text-success"></i>
+                  </td>
+                  <td class="text-start align-middle fs-6" style="vertical-align: middle;">
+                    すべてのリハビリに取り組みました。
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center align-middle fs-3 fw-bold" style="width: 48px; vertical-align: middle;">
+                    1
+                  </td>
+                  <td class="text-start align-middle fs-6" style="vertical-align: middle;">
+                    リハビリに取り組んだ数です。
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center align-middle fs-4" style="width: 48px; vertical-align: middle;">
+                    空
+                  </td>
+                  <td class="text-start align-middle fs-6" style="vertical-align: middle;">
+                    リハビリに取り組まなかった日です。
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center align-middle fs-3 fw-bold m-2 p-1" style="width: 48px; vertical-align: middle; background-color: #FDDF50;">
+                  </td>
+                  <td class="text-start align-middle fs-6" style="vertical-align: middle;">
+                    今日を示します。
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+        
+    <script>
+      // ▼▲の切り替え
+      document.addEventListener('DOMContentLoaded', function() {
+        var collapseEl = document.getElementById('icon-legend');
+        var arrow = document.getElementById('icon-legend-arrow');
+        collapseEl.addEventListener('show.bs.collapse', function () {
+          arrow.textContent = '▲';
+        });
+        collapseEl.addEventListener('hide.bs.collapse', function () {
+          arrow.textContent = '▼';
+        });
+      });
+    </script>
+
+    <!-- モーダルの構造 -->
+    <div class="modal fade" id="dateDetailModal" tabindex="-1" aria-labelledby="dateDetailModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="dateDetailModalLabel"></h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <!-- モーダルのコンテンツは空ですが、必要に応じてここに追加できます。 -->
+            <div id="dateDetailContent">
+              <p>データを取得中...</p>
+            </div>
+            <script>
+              // モーダルが表示される直前に詳細データをセット
+              dateDetailModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const date = button.getAttribute('data-date');
+                const contentDiv = document.getElementById('dateDetailContent');
+                if (date) {
+                  const key = `status_${date}`;
+                  const value = localStorage.getItem(key);
+                  if (value !== null) {
+                    // valueのパース
+                    let main = value;
+                    let statusMap = {};
+                    if (value.includes(',')) {
+                      const arr = value.split(',');
+                      main = arr[0];
+                      // 各リハビリの達成状況をパース
+                      arr.slice(1).forEach(e => {
+                        const [k, v] = e.trim().split('=');
+                        if (k && v) statusMap[k] = v;
+                      });
+                    }
+                    // リハビリ名変換（ランダムIDにも対応）
+                    const rehabNames = {
+                      each0: '理学療法',
+                      each1: '言語療法',
+                      each2: '作業療法',
+                      each3: '心理療法'
+                    };
+                    
+                    // ランダムIDがある場合は追加
+                    if (typeof REHAB_IDS !== 'undefined') {
+                      Object.keys(REHAB_IDS).forEach(index => {
+                        const randomId = REHAB_IDS[index];
+                        switch(parseInt(index)) {
+                          case 0:
+                            rehabNames[randomId] = '理学療法';
+                            break;
+                          case 1:
+                            rehabNames[randomId] = '言語療法';
+                            break;
+                          case 2:
+                            rehabNames[randomId] = '作業療法';
+                            break;
+                          case 3:
+                            rehabNames[randomId] = '心理療法';
+                            break;
+                        }
+                      });
+                    }
+                    // rehab-row風のHTML生成（全リハビリ表示）
+                    let achievedRow = `<div class="container-fluid"><div class="row mb-1 justify-content-center text-center" id="rehab-row-modal">`;
+                    
+                    // 従来のeach0～each3とランダムIDの両方をチェック
+                    const allRehabIds = ['each0', 'each1', 'each2', 'each3'];
+                    if (typeof REHAB_IDS !== 'undefined') {
+                      Object.values(REHAB_IDS).forEach(randomId => {
+                        if (!allRehabIds.includes(randomId)) {
+                          allRehabIds.push(randomId);
+                        }
+                      });
+                    }
+                    
+                    allRehabIds.forEach(rehabId => {
+                      // 取り組むリハビリのみ表示（statusMapに含まれるもののみ）
+                      if (rehabId in statusMap && rehabNames[rehabId]) {
+                        const isAchieved = statusMap[rehabId] === 'true';
+                        achievedRow += `
+                          <div class="col-6 px-1 rehab-block" style="min-width:120px;">
+                            <span style="font-size: 0.92em; white-space: nowrap;">${rehabNames[rehabId]}</span>
+                            <div class="eachcontainer" style="background:${isAchieved ? '#e6f7e6' : '#f0f0f0'}; border-radius:12px; margin:0.25rem 0; min-height:2.2rem; display:flex; align-items:center; justify-content:center;">
+                              <i class="bi ${isAchieved ? 'bi-check-circle-fill' : 'bi-x-circle'}" style="color:${isAchieved ? 'green' : 'gray'}; font-size:1.5rem;"></i>
+                            </div>
+                          </div>
+                        `;
+                      }
+                    });
+                    achievedRow += `</div></div>`;
+                    let mainText = '';
+                    if (main === 'clear') {
+                      mainText = `<span class="fs-4 text-success">全て取り組みました！</span>`;
+                    } else {
+                      // 実際の完了数を計算して表示
+                      const trueCount = Object.values(statusMap).filter(v => v === 'true').length;
+                      const totalCount = Object.keys(statusMap).length;
+                      
+                      if (trueCount === totalCount && totalCount > 0) {
+                        mainText = `<span class="fs-4 text-success">全て取り組みました！</span>`;
+                      } else {
+                        mainText = `<span class="fs-4">${trueCount}個取り組みました</span>`;
+                      }
+                    }
+                    // yyyy-mm-dd形式をmm月dd日形式に変換（0埋めなし）
+                    const [year, month, day] = date.split('-');
+                    const formattedDate = `${parseInt(month)}月${parseInt(day)}日`;
+                    contentDiv.innerHTML = `<p>${mainText}</p>${achievedRow}`;
+                  } else {
+                    // 今日よりも先の日付かどうかを判定
+                    const today = new Date();
+                    const selectedDate = new Date(date);
+                    // 時間部分を無視して日付のみ比較
+                    today.setHours(0,0,0,0);
+                    selectedDate.setHours(0,0,0,0);
+                    // yyyy-mm-dd形式をmm月dd日形式に変換（0埋めなし）
+                    const [year, month, day] = date.split('-');
+                    const formattedDate = `${parseInt(month)}月${parseInt(day)}日`;
+                    if (selectedDate > today) {
+                      contentDiv.innerHTML = `<p>記録はありません。</p>`;
+                    } else {
+                      contentDiv.innerHTML = `<p>記録はありません。</p>`;
+                    }
+                  }
+                } else {
+                  contentDiv.innerHTML = `<p>日付が選択されていません。</p>`;
+                }
+              });
+            </script>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/config.js"></script>
+    <script src="js/script.js"></script>
+    
+    <script>
+        // ダッシュボード機能
+        function updateDashboard() {
+            updateFixedMetrics();
+            // updateMonthlyMetrics(); // 月別記録は非表示
+        }
+
+        // 固定指標の更新
+        function updateFixedMetrics() {
+            // 連続記録日数
+            const consecutiveDays = getConsecutiveDays();
+            document.getElementById('consecutiveDays').textContent = consecutiveDays;
+
+            // 合計ポイント（既存のscript.jsの関数を使用）
+            const totalPoints = calculateAndSaveTotalRehab();
+            document.getElementById('totalPoints').textContent = totalPoints;
+
+            // 現在のランク
+            const rank = getRankFromPoints(totalPoints);
+            document.getElementById('currentRank').textContent = rank;
+        }
+
+        /*
+        // 表示月指標の更新
+        function updateMonthlyMetrics() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            
+            // 月表示の更新
+            const monthDisplay = `${year}年${month}月`;
+            document.getElementById('currentMonthDisplay').textContent = monthDisplay;
+
+            // 月間データの計算
+            const monthData = calculateMonthlyData(year, month);
+            
+            // 取組日数
+            document.getElementById('monthlyDays').textContent = `${monthData.workDays}/${monthData.totalDays}`;
+            
+            // 完了日数
+            document.getElementById('completedDays').textContent = monthData.completedDays;
+            
+            // 達成率
+            const rate = monthData.totalDays > 0 ? Math.round((monthData.workDays / monthData.totalDays) * 100) : 0;
+            document.getElementById('achievementRate').textContent = rate;
+        }
+        */
+
+        // ポイントからランクを取得
+        function getRankFromPoints(points) {
+            if (points >= 100) return 'プラチナ';
+            if (points >= 60) return 'ゴールド';
+            if (points >= 30) return 'シルバー';
+            if (points >= 10) return 'ブロンズ';
+            return 'ビギナー';
+        }
+
+        /*
+        // 月間データを計算
+        function calculateMonthlyData(year, month) {
+            const firstDay = new Date(year, month - 1, 1);
+            const lastDay = new Date(year, month, 0);
+            const totalDays = lastDay.getDate();
+            
+            let workDays = 0;
+            let completedDays = 0;
+            
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const status = localStorage.getItem(`status_${dateStr}`);
+                
+                if (status) {
+                    workDays++;
+                    
+                    // 完了かどうかの判定
+                    if (status === 'clear' || status.startsWith('clear,')) {
+                        completedDays++;
+                    }
+                }
+            }
+            
+            return { workDays, completedDays, totalDays };
+        }
+        */
+
+        // カレンダー更新時にダッシュボードも更新
+        function updateCalendarAndDashboard() {
+            renderCalendar(); // 既存のカレンダー更新関数
+            updateDashboard(); // ダッシュボード更新
+        }
+    </script>
+    
+    <script>
+        // DOM要素の取得
+        const currentMonthYearEl = document.getElementById('currentMonthYear');
+        const calendarBody = document.getElementById('calendarBody');
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const dateDetailModal = document.getElementById('dateDetailModal'); // モーダル要素を取得
+        const dateDetailModalLabel = document.getElementById('dateDetailModalLabel'); // モーダルのタイトルh4を取得
+
+        let currentDate = new Date(); // カレンダーの表示月を管理する変数
+        const realToday = new Date(); // 今日の日付を保持する固定変数
+
+        // localStorageからイベントデータを生成（calender.htmlのロジックを流用）
+        function getEventsFromLocalStorage() {
+            const events = [];
+            // numberOfClassは不要
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const match = key.match(/^status_(\d{4}-\d{2}-\d{2})$/);
+                if (match) {
+                    const date = match[1];
+                    const value = localStorage.getItem(key);
+                    let title = '';
+                    if (value === 'clear' || (value && value.startsWith('clear'))) {
+                        // clearまたはclear,each0,...の場合
+                        title = 'clear';
+                    } else if (value && value.includes(',')) {
+                        // カレンダー表示用: 実際の完了数を表示、全完了時はclearに変換
+                        const parts = value.split(',');
+                        if (parts.length > 1) {
+                            // each0=true などの個数をカウント
+                            const trueCount = parts.filter(part => part.includes('=true')).length;
+                            const totalEnabled = parts.filter(part => part.includes('=')).length;
+                            
+                            // 全完了の場合はclearとして表示
+                            if (trueCount === totalEnabled && totalEnabled > 0) {
+                                title = 'clear';
+                            } else {
+                                title = trueCount.toString();
+                            }
+                        } else {
+                            title = parts[0];
+                        }
+                    } else {
+                        title = value;
+                    }
+                    if (title) {
+                        events.push({
+                            title: title,
+                            start: date
+                        });
+                    }
+                }
+            }
+            return events;
+        }
+
+        // localStorageから最も古い日付を取得する関数
+        function getOldestDataDate() {
+            let oldestDate = null;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const match = key.match(/^status_(\d{4}-\d{2}-\d{2})$/);
+                if (match) {
+                    const date = match[1];
+                    if (!oldestDate || date < oldestDate) {
+                        oldestDate = date;
+                    }
+                }
+            }
+            return oldestDate;
+        }
+
+        // ナビゲーションボタンの有効/無効状態を更新する関数
+        function updateNavigationButtons() {
+            const currentDisplayYear = currentDate.getFullYear();
+            const currentDisplayMonth = currentDate.getMonth();
+            const actualCurrentYear = realToday.getFullYear();
+            const actualCurrentMonth = realToday.getMonth();
+
+            // 「次の月」ボタンの制御（既存の仕様）
+            if (currentDisplayYear === actualCurrentYear && currentDisplayMonth === actualCurrentMonth) {
+                nextMonthBtn.disabled = true;
+            } else {
+                nextMonthBtn.disabled = false;
+            }
+
+            // 「前の月」ボタンの制御（新機能）
+            const oldestDate = getOldestDataDate();
+            if (!oldestDate) {
+                // データがない場合は現在の月のみ表示
+                prevMonthBtn.disabled = true;
+            } else {
+                const oldestDateObj = new Date(oldestDate);
+                const oldestYear = oldestDateObj.getFullYear();
+                const oldestMonth = oldestDateObj.getMonth();
+                
+                // 表示月が最も古いデータの月と同じかそれより前の場合は無効化
+                if (currentDisplayYear < oldestYear || 
+                    (currentDisplayYear === oldestYear && currentDisplayMonth <= oldestMonth)) {
+                    prevMonthBtn.disabled = true;
+                } else {
+                    prevMonthBtn.disabled = false;
+                }
+            }
+        }
+
+        // カレンダーをレンダリングする関数
+        function renderCalendar() {
+            calendarBody.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthNames = [
+                '1月', '2月', '3月', '4月', '5月', '6月',
+                '7月', '8月', '9月', '10月', '11月', '12月'
+            ];
+            currentMonthYearEl.textContent = `${year}年 ${monthNames[month]}`;
+
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const lastDateOfMonth = new Date(year, month + 1, 0).getDate();
+            const lastDateOfPrevMonth = new Date(year, month, 0).getDate();
+
+            const events = getEventsFromLocalStorage();
+            const eventMap = {};
+            const eventRawMap = {};
+            events.forEach(ev => {
+                eventMap[ev.start] = ev.title;
+                // localStorageの値も保持
+                const key = `status_${ev.start}`;
+                eventRawMap[ev.start] = localStorage.getItem(key);
+            });
+
+            let date = 1;
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < 7; j++) {
+                    const cell = document.createElement('td');
+                    cell.style.position = "relative";
+
+                    if (i === 0 && j < firstDayOfMonth) {
+                        // 前月の空白部分のセル
+                        const prevMonthDay = lastDateOfPrevMonth - firstDayOfMonth + j + 1;
+                        cell.classList.add('empty');
+                        cell.innerHTML = `<span class="date-number">${prevMonthDay}</span>`;
+                    }
+                    else if (date <= lastDateOfMonth) {
+                        // 現在の月のセル
+                        cell.classList.add('current-month');
+                        if (year === realToday.getFullYear() && month === realToday.getMonth() && date === realToday.getDate()) {
+                            cell.classList.add('today');
+                        }
+                        const mm = String(month + 1).padStart(2, '0');
+                        const dd = String(date).padStart(2, '0');
+                        const ymd = `${year}-${mm}-${dd}`;
+                        let eventHtml = '';
+                        if (eventMap[ymd]) {
+                            // 全完了の判定：clearまたは実際の完了数で判定
+                            const rawValue = eventRawMap[ymd];
+                            let isFullyCompleted = false;
+                            
+                            if (rawValue) {
+                                if (rawValue.startsWith("clear")) {
+                                    // 旧システムのclear
+                                    isFullyCompleted = true;
+                                } else {
+                                    // 新システム：実際の完了数をチェック
+                                    const parts = rawValue.split(',');
+                                    if (parts.length > 1) {
+                                        const trueCount = parts.filter(part => part.includes('=true')).length;
+                                        const totalEnabled = parts.filter(part => part.includes('=')).length;
+                                        isFullyCompleted = (trueCount === totalEnabled && totalEnabled > 0);
+                                    }
+                                }
+                            }
+                            
+                            if (isFullyCompleted) {
+                                eventHtml = `<div class="event-content d-flex flex-column justify-content-end align-items-center w-100 position-absolute bottom-0 start-50 translate-middle-x mb-1">
+                                    <i class="bi bi-check-lg" style="font-size:2.2rem;"></i>
+                                </div>`;
+                            } else {
+                                eventHtml = `<div class="event-content d-flex flex-column justify-content-end align-items-center w-100 position-absolute bottom-0 start-50 translate-middle-x mb-1">${eventMap[ymd]}</div>`;
+                            }
+                        }
+                        cell.innerHTML = `<span class="date-number">${date}</span>${eventHtml}`;
+                        // モーダルをトリガーするための属性を追加
+                        cell.setAttribute('data-bs-toggle', 'modal');
+                        cell.setAttribute('data-bs-target', '#dateDetailModal');
+                        cell.setAttribute('data-date', ymd); // クリックされた日付をデータ属性として保持
+                        date++;
+                    }
+                    else {
+                        // 次月の空白部分のセル
+                        cell.classList.add('empty');
+                        cell.innerHTML = `<span class="date-number">${date - lastDateOfMonth}</span>`;
+                        // 空白セルはモーダルをトリガーしないため、data属性は追加しない
+                        date++;
+                    }
+                    row.appendChild(cell);
+                }
+                calendarBody.appendChild(row);
+
+                if (date > lastDateOfMonth && (i * 7 + 7) >= (firstDayOfMonth + lastDateOfMonth)) {
+                    break;
+                }
+            }
+
+            // ナビゲーションボタンの状態を更新
+            updateNavigationButtons();
+        }
+
+        // モーダルが表示される直前に実行されるイベントリスナー
+        dateDetailModal.addEventListener('show.bs.modal', function (event) {
+          // モーダルをトリガした要素 (クリックされた<td>) を取得
+          const button = event.relatedTarget;
+          // その要素からdata-date属性の値を取得
+          const date = button.getAttribute('data-date');
+          // モーダルのタイトルを更新
+          if (date) {
+            // yyyy-mm-dd形式をmm月dd日形式に変換（0埋めなし）
+            const [year, month, day] = date.split('-');
+            const formattedDate = `${parseInt(month)}月${parseInt(day)}日`;
+            dateDetailModalLabel.textContent = `${formattedDate} の詳細`;
+          } else {
+            dateDetailModalLabel.textContent = `日付の詳細`;
+          }
+        });
+
+        // 「前の月」ボタンのクリックイベントリスナー
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+            // updateMonthlyMetrics(); // 月別記録は非表示のためコメントアウト
+        });
+
+        // 「次の月」ボタンのクリックイベントリスナー
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+            // updateMonthlyMetrics(); // 月別記録は非表示のためコメントアウト
+        });
+
+        // ページロード時にカレンダーをレンダリング
+        document.addEventListener('DOMContentLoaded', () => {
+            // データがない場合の初期制御
+            const oldestDate = getOldestDataDate();
+            if (!oldestDate) {
+                // データがない場合は現在の月に設定
+                currentDate = new Date(realToday.getFullYear(), realToday.getMonth(), 1);
+            }
+            renderCalendar();
+            // ダッシュボードを初期化
+            updateDashboard();
+        });
+    </script>
+
+        <!-- フッター -->
+    <div id="footer" class="container-fluid">
+      <div class="fixed-bottom bg-white m-auto"
+           style="border-radius: 26px; left: 0; right: 0; width: 95%; max-width: 600px; bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
+        <div class="row m-0 p-0" style="border-radius: 32px;">
+          <div class="col-3">
+            <div id="homebtn" class="text-center m-auto">
+              <a href="index.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-house-fill fw-bold" style="font-size: 2rem;"></i><br>
+              きょう</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="calbtn" class="text-center m-auto">
+              <a href="calender.html" class="btn btn-link text-primary text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-calendar2-week fw-bold" style="font-size: 2rem;"></i><br>
+              きろく</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="explainbtn" class="text-center m-auto">
+              <a href="explain.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-question-circle fw-bold" style="font-size: 2rem;"></i><br>
+              使い方</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="settingbtn" class="text-center m-auto">
+              <a href="setting.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+              <i class="bi bi-gear-fill fw-bold" style="font-size: 2rem;"></i><br>
+              設定</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height: 200px;"></div>
+</body>
+</html>
