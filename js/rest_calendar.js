@@ -283,26 +283,26 @@ function updateCellDisplay(cell, dateStr, isDisabled = false) {
         existingIcon.remove();
     }
     
-    // クラスをリセット
-    cell.classList.remove('rest-day', 'work-day');
+        // クラスをリセット
+        cell.classList.remove('rest-day', 'work-day');
     
-    if (isRest) {
-        cell.classList.add('rest-day');
-        const icon = document.createElement('i');
-        icon.className = `bi bi-x day-status-icon icon-rest`;
-        if (isDisabled) {
-            icon.style.opacity = '0.5';
+        if (isRest) {
+            cell.classList.add('rest-day');
+            const icon = document.createElement('i');
+            icon.className = `bi bi-moon day-status-icon icon-rest`;
+            if (isDisabled) {
+                icon.style.opacity = '0.4';
+            }
+            cell.appendChild(icon);
+        } else {
+            cell.classList.add('work-day');
+            const icon = document.createElement('i');
+            icon.className = `bi bi-circle day-status-icon icon-work`;
+            if (isDisabled) {
+                icon.style.opacity = '0.4';
+            }
+            cell.appendChild(icon);
         }
-        cell.appendChild(icon);
-    } else {
-        cell.classList.add('work-day');
-        const icon = document.createElement('i');
-        icon.className = `bi bi-circle day-status-icon icon-work`;
-        if (isDisabled) {
-            icon.style.opacity = '0.5';
-        }
-        cell.appendChild(icon);
-    }
 }
 
 // 設定保存

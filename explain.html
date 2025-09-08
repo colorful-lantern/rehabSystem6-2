@@ -113,7 +113,7 @@
     </nav>
 
     <div id="explain" class="mt-4 mb-2 d-flex justify-content-between align-items-center">
-      <h3 class="m-auto text-center">スタンプの獲得方法</h3>
+      <h3 class="m-auto text-center">きろくの方法</h3>
     </div>
 
     <!--カードコンテナ-->
@@ -144,15 +144,15 @@
               <div class="row-cols-2 align-content-center m-1 text-center">
                 <i class="bi bi-exclamation-triangle-fill fs-3"></i>
               </div>
-              <div class="row-cols-10 d-flex align-items-center m-auto text-center pe-2 p-1">
+              <div class="row-cols-10 d-flex align-items-center m-1 text-center pe-2 p-1">
                 QRコードを読み取ったら、<br>毎回同じブラウザで開いてください。
               </div>
             </div>
             <div class="alert alert-warning d-flex align-content-center m-1 p-1" role="alert">
-              <div class="row-cols-2 align-content-center m-1 text-center">
+              <div class="row-cols-2 align-content-center m-1 mb-1 text-center">
                 <i class="bi bi-lightbulb fs-3"></i>
               </div>
-              <div class="row-cols-10 d-flex align-items-center m-auto text-center pe-2 p-1">
+              <div class="row-cols-10 d-flex align-items-center m-1 text-center pe-2 p-1 pb-1">
                 間違えてスタンプを獲得したときは、スタッフにお知らせください。
               </div>
             </div>
@@ -164,11 +164,11 @@
       <div class="card m-2">
         <div class="card-body accordion-header">
           <button class="accordion-button-custom" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCard3" aria-expanded="false" aria-controls="collapseCard3">
-            <h5 class="card-title">3. スタンプを獲得する</h5>
+            <h5 class="card-title">3. 記録完了</h5>
             <i class="bi bi-chevron-down fs-4 text-black"></i>
           </button>
           <div id="collapseCard3" class="collapse">
-            <p class="card-text">QRコードを読み取ると、<br>自動でホーム画面が開き、<br>スタンプが獲得できます。</p>
+            <p class="card-text">QRコードを読み取ると、<br>自動でホーム画面が開き、記録されます。</p>
           </div>
         </div>
       </div>
@@ -194,7 +194,7 @@
             <div class="card" id="rank-system-explanation-card">
               <div class="card-body">
                 <h6 class="card-title"><i class="bi bi-award fs-4"></i> ランクシステム</h6>
-                <p class="card-text">1つリハビリに取り組むと1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
+                <p class="card-text">1日に取り組むすべてのリハビリを行うと1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
                 
                 <!-- ポイント表示アニメーション -->
                 <!-- <div class="alert alert-success m-1 p-2">
@@ -223,26 +223,14 @@
             <!-- 連続記録機能の説明カード（ネスト） -->
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title"><i class="bi bi-calendar-check fs-4"></i> 連続記録機能</h6>
-                <p class="card-text">連続してリハビリに取り組んだ日数を<br>自動で計算して表示します。</p>
-                
-                <div class="alert alert-success m-1 p-2">
-                  <div class="text-center">
-                    <strong>連続記録のポイント</strong><br>
-                    <div style="font-size: 0.95rem; line-height: 1.6; margin-top: 8px;">
-                      • 毎日続けるとどんどん数字が増えます<br>
-                      • 休日設定した日は連続記録が途切れません<br>
-                      • モチベーション維持に役立ちます
-                    </div>
-                  </div>
-                </div>
-                
+                <h6 class="card-title"><i class="bi bi-calendar-check fs-4"></i> 連続記録に挑戦！</h6>
+                <p class="card-text">連続してリハビリに取り組んだ日数を表示します。</p>
                 <div class="alert alert-info d-flex align-content-center m-1 p-1" role="alert">
                   <div class="row-cols-2 align-content-center m-1 text-center">
                     <i class="bi bi-info-circle fs-3"></i>
                   </div>
                   <div class="row-cols-10 d-flex align-items-center m-auto text-center p-1">
-                    連続記録は「きょう」画面と<br>「きろく」画面で確認できます。
+                    連続記録は「きょう」から確認できます。
                   </div>
                 </div>
               </div>
@@ -261,36 +249,8 @@
           <div id="collapseAppFeature2" class="collapse">
             <p class="card-text">カレンダー形式で、これまでのリハビリの<br>取り組みをふりかえることができます。</p>
             
-            <!-- 休日設定機能の説明カード（ネスト） -->
-            <div class="card">
-              <div class="card-body">
-                <h6 class="card-title"><i class="bi bi-calendar-week fs-4"></i> 休日設定機能</h6>
-                <p class="card-text">カレンダー画面から「休みの日を設定する」ボタンを押すと、<br>お休みする日を事前に設定できます。</p>
-                
-                <div class="alert alert-info m-1 p-2">
-                  <div class="text-center">
-                    <strong>休日設定のメリット</strong><br>
-                    <div style="font-size: 0.95rem; line-height: 1.6; margin-top: 8px;">
-                      • 連続記録が途切れません<br>
-                      • 予定に合わせてリハビリ計画を立てられます<br>
-                      • 設定した休日は取り組まなくても大丈夫です
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="alert alert-warning d-flex align-content-center m-1 p-1" role="alert">
-                  <div class="row-cols-2 align-content-center m-1 text-center">
-                    <i class="bi bi-lightbulb fs-3"></i>
-                  </div>
-                  <div class="row-cols-10 d-flex align-items-center m-auto text-center p-1">
-                    設定を保存すると、<br>元の画面に自動で戻ります。
-                  </div>
-                </div>
-              </div>
-            </div>
-            
             <!-- カレンダー詳細機能の説明カード（ネスト） -->
-            <div class="card">
+            <!-- <div class="card">
               <div class="card-body">
                 <h6 class="card-title"><i class="bi bi-calendar3 fs-4"></i> カレンダーの見方</h6>
                 <p class="card-text">カレンダー上での表示の意味を<br>理解して効果的に活用しましょう。</p>
@@ -316,7 +276,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -344,49 +304,27 @@
           <div id="collapseAppFeature4" class="collapse">
             <p class="card-text">あなたが取り組むリハビリを<br>選ぶことができます。</p>
             
+            <!-- 休日設定機能の説明カード（ネスト） -->
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-calendar-week fs-4"></i> 休日設定機能</h6>
+                <p class="card-text">「休みの日を設定する」ボタンを押すと、リハビリをお休みする日を設定できます。</p>
+              </div>
+            </div>
+
             <!-- 設定機能の詳細説明カード（ネスト） -->
             <div class="card">
               <div class="card-body">
                 <h6 class="card-title"><i class="bi bi-toggles fs-4"></i> 設定機能の詳細</h6>
-                <p class="card-text">各リハビリのON/OFF切り替えができ、<br>取り組むリハビリをカスタマイズできます。</p>
-                
-                <div class="alert alert-success m-1 p-2">
-                  <div class="text-center">
-                    <strong>設定画面でできること</strong><br>
-                    <div style="font-size: 0.95rem; line-height: 1.6; margin-top: 8px; text-align: left;">
-                      • 各リハビリの有効/無効の切り替え<br>
-                      • 設定変更の保存<br>
-                      • 休日設定画面へのアクセス<br>
-                      • データのリセット（必要に応じて）
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="alert alert-info d-flex align-content-center m-1 p-1" role="alert">
+                <p class="card-text">取り組むリハビリを設定することができます。</p>
+                <div class="alert alert-warning d-flex align-content-center m-1 p-1" role="alert">
                   <div class="row-cols-2 align-content-center m-1 text-center">
-                    <i class="bi bi-save fs-3"></i>
+                  <i class="bi bi-lightbulb fs-3"></i>
                   </div>
-                  <div class="row-cols-10 d-flex align-items-center m-auto text-center p-1">
-                    設定変更後は必ず<br>「設定を保存する」ボタンを<br>押してください。
+                  <div class="row-cols-10 m-auto text-center p-1">
+                  <b>はじめて</b>このシステムを使用するときは、<a href="setting.html">設定画面</a>からリハビリの種類を選択してください。
                   </div>
                 </div>
-              </div>
-            </div>
-            
-            <div class="alert alert-warning d-flex align-content-center m-1 p-1" role="alert">
-              <div class="row-cols-2 align-content-center m-1 text-center">
-                <i class="bi bi-lightbulb fs-3"></i>
-              </div>
-              <div class="row-cols-10 m-auto text-center p-1">
-                <b>はじめて</b>このシステムを使用するときは、<a href="setting.html">設定画面</a>からリハビリの種類を選択してください。
-              </div>
-            </div>
-            <div class="alert alert-warning d-flex align-content-center m-1 p-1" role="alert">
-              <div class="row-cols-2 align-content-center m-1 text-center">
-                <i class="bi bi-lightbulb fs-3"></i>
-              </div>
-              <div class="row-cols-10 d-flex align-items-center m-auto text-center p-1">
-                何回でも<br>取り組むリハビリの種類を<br>変更することができます。
               </div>
             </div>
           </div>

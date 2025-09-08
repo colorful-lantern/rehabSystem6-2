@@ -313,9 +313,9 @@
     </div>
 
     <!-- ダッシュボード -->
-    <div class="dashboard-container mt-3 mb-3" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+    <!-- <div class="dashboard-container mt-3 mb-3" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
         <!-- 固定指標セクション -->
-        <div class="dashboard-section mb-3">
+        <!-- <div class="dashboard-section mb-3">
             <div class="row g-2">
                 <div class="col-4">
                     <div class="dashboard-card">
@@ -339,7 +339,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- 表示月連動指標セクション -->
         <!--
@@ -370,7 +370,7 @@
             </div>
         </div>
         -->
-    </div>
+    <!--</div>-->
 
     <!-- 休日設定ボタン（カレンダー下、説明上に追加） -->
     <div class="d-flex justify-content-center mt-1 mb-2" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
@@ -465,6 +465,22 @@
                 const date = button.getAttribute('data-date');
                 const contentDiv = document.getElementById('dateDetailContent');
                 if (date) {
+                  // 休みの日かどうかをチェック
+                  const isRestDay = RestDayManager && typeof RestDayManager.isRestDay === 'function' && RestDayManager.isRestDay(date);
+                  
+                  if (isRestDay) {
+                    // 休みの日の場合は専用メッセージを表示
+                    const [year, month, day] = date.split('-');
+                    const formattedDate = `${parseInt(month)}月${parseInt(day)}日`;
+                    contentDiv.innerHTML = `
+                      <div class="text-center">
+                        <i class="bi bi-moon" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                        <p class="fs-4">${formattedDate}はお休みです</p>
+                      </div>
+                    `;
+                    return; // 早期リターンで以降の処理をスキップ
+                  }
+                  
                   const key = `status_${date}`;
                   const value = localStorage.getItem(key);
                   if (value !== null) {
@@ -599,15 +615,18 @@
         function updateFixedMetrics() {
             // 連続記録日数
             const consecutiveDays = getConsecutiveDays();
-            document.getElementById('consecutiveDays').textContent = consecutiveDays;
+            const consecutiveDaysEl = document.getElementById('consecutiveDays');
+            if (consecutiveDaysEl) consecutiveDaysEl.textContent = consecutiveDays;
 
             // 合計ポイント（既存のscript.jsの関数を使用）
             const totalPoints = calculateAndSaveTotalRehab();
-            document.getElementById('totalPoints').textContent = totalPoints;
+            const totalPointsEl = document.getElementById('totalPoints');
+            if (totalPointsEl) totalPointsEl.textContent = totalPoints;
 
             // 現在のランク
             const rank = getRankFromPoints(totalPoints);
-            document.getElementById('currentRank').textContent = rank;
+            const currentRankEl = document.getElementById('currentRank');
+            if (currentRankEl) currentRankEl.textContent = rank;
         }
 
         /*
@@ -834,8 +853,17 @@
                         const mm = String(month + 1).padStart(2, '0');
                         const dd = String(date).padStart(2, '0');
                         const ymd = `${year}-${mm}-${dd}`;
+                        
+                        // 休みの日かどうかをチェック
+                        const isRestDay = RestDayManager && typeof RestDayManager.isRestDay === 'function' && RestDayManager.isRestDay(ymd);
+                        
                         let eventHtml = '';
-                        if (eventMap[ymd]) {
+                        if (isRestDay) {
+                            // 休みの日の場合は月アイコンを表示
+                            eventHtml = `<div class="event-content d-flex flex-column justify-content-end align-items-center w-100 position-absolute bottom-0 start-50 translate-middle-x mb-1">
+                                <i class="bi bi-moon" style="font-size:1.8rem;"></i>
+                            </div>`;
+                        } else if (eventMap[ymd]) {
                             // 全完了の判定：clearまたは実際の完了数で判定
                             const rawValue = eventRawMap[ymd];
                             let isFullyCompleted = false;
