@@ -562,8 +562,7 @@ function getConsecutiveDays() {
             }
             
             if (isRestDay) {
-                // 休日の場合はカウントして次の日へ
-                consecutiveCount++;
+                // 休日は連続記録から除外（カウントせずに前日へ）
                 currentDate.setDate(currentDate.getDate() - 1);
                 daysChecked++;
                 continue;
