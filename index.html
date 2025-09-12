@@ -163,6 +163,19 @@
               <div id="each3" class="eachcontainer"></div>
             </div>
           </div>
+          
+          <!-- 自主トレーニングセクション -->
+          <div class="row mb-1 justify-content-center text-center" id="self-training-section" style="display: none;">
+            <div class="col-12 px-1">
+              <div class="d-flex align-items-center justify-content-center mb-2">
+                <i class="bi bi-journal-text me-2" style="font-size: 1.2rem; color: #6f42c1;"></i>
+                <span class="fw-bold" style="font-size: 1.1rem; color: #6f42c1;">自主トレーニング</span>
+              </div>
+              <button id="self-training-btn" class="btn btn-outline-primary w-100" style="border-radius: 8px; font-size: 1rem; padding: 0.6rem;">
+                <i class="bi bi-plus-circle me-2"></i>記録する
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -270,6 +283,44 @@
         </div>
       </div> -->
       
+    <!-- 自主トレーニング記録モーダル -->
+    <div class="modal fade" id="selfTrainingModal" tabindex="-1" aria-labelledby="selfTrainingModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="selfTrainingModalLabel">
+              <i class="bi bi-journal-text me-2" style="color: #6f42c1;"></i>
+              自主トレーニング記録
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="selfTrainingText" class="form-label">今日の自主トレーニング内容</label>
+              <textarea class="form-control" id="selfTrainingText" rows="4" 
+                        maxlength="500" placeholder="例：30分間のストレッチを行いました。腰痛が改善されてきています。"></textarea>
+              <div class="form-text">
+                <span id="charCount">0</span>/500文字
+              </div>
+            </div>
+            <div class="alert alert-info" role="alert">
+              <i class="bi bi-info-circle me-2"></i>
+              記録内容は90日間保存されます。それ以降は記録した事実のみ残ります。
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button type="button" class="btn btn-danger me-auto" id="deleteSelfTraining" style="display: none;">
+              <i class="bi bi-trash me-2"></i>記録を消す
+            </button>
+            <button type="button" class="btn btn-primary" id="saveSelfTraining">
+              <i class="bi bi-check-circle me-2"></i>記録する
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="footer" class="container-fluid">
       <div class="fixed-bottom bg-white m-auto"
            style="border-radius: 26px; left: 0; right: 0; width: 95%; max-width: 600px; bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
@@ -310,6 +361,7 @@
     <script src="js/config.js"></script>
     <script src="js/progressbar.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/self_training_test.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -408,6 +460,180 @@
         });
       });
     </script>
+    
+    <!-- 自主トレーニング機能 -->
+    <script>
+        // 自主トレーニング機能の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            const selfTrainingSection = document.getElementById('self-training-section');
+            const selfTrainingBtn = document.getElementById('self-training-btn');
+            const selfTrainingModal = new bootstrap.Modal(document.getElementById('selfTrainingModal'));
+            const selfTrainingText = document.getElementById('selfTrainingText');
+            const charCount = document.getElementById('charCount');
+            const saveSelfTrainingBtn = document.getElementById('saveSelfTraining');
+            
+            // 自主トレーニングが有効かチェック
+            function checkSelfTrainingEnabled() {
+                const isEnabled = localStorage.getItem(SELF_TRAINING_CONFIG.REHAB_KEY) === 'true';
+                if (isEnabled) {
+                    selfTrainingSection.style.display = 'block';
+                    updateSelfTrainingButton();
+                } else {
+                    selfTrainingSection.style.display = 'none';
+                }
+            }
+            
+            // 自主トレーニングボタンの状態更新
+            function updateSelfTrainingButton() {
+                const today = new Date().toISOString().split('T')[0];
+                const hasRecord = SelfTrainingManager.hasRecord(today);
+                const isCompleted = localStorage.getItem(SELF_TRAINING_CONFIG.EACH_KEY) === 'true';
+                
+                if (hasRecord || isCompleted) {
+                    selfTrainingBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>記録済み';
+                    selfTrainingBtn.className = 'btn btn-success w-100';
+                    selfTrainingBtn.disabled = false; // 再編集可能
+                } else {
+                    selfTrainingBtn.innerHTML = '<i class="bi bi-plus-circle me-2"></i>記録する';
+                    selfTrainingBtn.className = 'btn btn-outline-primary w-100';
+                    selfTrainingBtn.disabled = false;
+                }
+            }
+            
+            // 文字数カウント
+            selfTrainingText.addEventListener('input', function() {
+                const count = this.value.length;
+                charCount.textContent = count;
+                
+                if (count > 500) {
+                    charCount.style.color = '#dc3545';
+                } else if (count > 450) {
+                    charCount.style.color = '#ffc107';
+                } else {
+                    charCount.style.color = '#6c757d';
+                }
+            });
+            
+            // 自主トレーニングボタンクリック
+            selfTrainingBtn.addEventListener('click', function() {
+                const today = new Date().toISOString().split('T')[0];
+                const existingText = SelfTrainingManager.getTextContent(today) || '';
+                const deleteSelfTrainingBtn = document.getElementById('deleteSelfTraining');
+                
+                // 既存のテキストがあれば表示
+                selfTrainingText.value = existingText;
+                charCount.textContent = existingText.length;
+                
+                // 削除ボタンの表示制御
+                if (existingText || SelfTrainingManager.hasRecord(today)) {
+                    deleteSelfTrainingBtn.style.display = 'inline-block';
+                } else {
+                    deleteSelfTrainingBtn.style.display = 'none';
+                }
+                
+                selfTrainingModal.show();
+            });
+            
+            // 削除ボタンクリック
+            const deleteSelfTrainingBtn = document.getElementById('deleteSelfTraining');
+            deleteSelfTrainingBtn.addEventListener('click', function() {
+                if (confirm('今日の自主トレーニング記録を削除しますか？')) {
+                    const today = new Date().toISOString().split('T')[0];
+                    
+                    // 記録削除
+                    const deleteResult = SelfTrainingManager.deleteRecord(today);
+                    
+                    if (deleteResult) {
+                        selfTrainingModal.hide();
+                        updateSelfTrainingButton();
+                        
+                        // 成功メッセージ
+                        const successAlert = document.createElement('div');
+                        successAlert.className = 'alert alert-warning alert-dismissible fade show position-fixed';
+                        successAlert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+                        successAlert.innerHTML = `
+                            <i class="bi bi-trash-fill me-2"></i>
+                            自主トレーニング記録を削除しました
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(successAlert);
+                        
+                        // 3秒後に自動削除
+                        setTimeout(() => {
+                            if (successAlert.parentNode) {
+                                successAlert.remove();
+                            }
+                        }, 3000);
+                        
+                        // プログレスバーや統計の更新をトリガー
+                        if (typeof saveTrueCountToLocalStorage === 'function') {
+                            saveTrueCountToLocalStorage();
+                        }
+                    } else {
+                        alert('記録の削除に失敗しました。もう一度お試しください。');
+                    }
+                }
+            });
+            
+            // 記録保存
+            saveSelfTrainingBtn.addEventListener('click', function() {
+                const text = selfTrainingText.value.trim();
+                const today = new Date().toISOString().split('T')[0];
+                
+                if (text.length === 0) {
+                    alert('記録内容を入力してください。');
+                    return;
+                }
+                
+                if (text.length > 500) {
+                    alert('記録内容は500文字以内で入力してください。');
+                    return;
+                }
+                
+                // 記録保存
+                const saveResult = SelfTrainingManager.saveRecord(today, text);
+                
+                if (saveResult) {
+                    selfTrainingModal.hide();
+                    updateSelfTrainingButton();
+                    
+                    // 成功メッセージ
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                    successAlert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+                    successAlert.innerHTML = `
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        自主トレーニングを記録しました！
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(successAlert);
+                    
+                    // 3秒後に自動削除
+                    setTimeout(() => {
+                        if (successAlert.parentNode) {
+                            successAlert.remove();
+                        }
+                    }, 3000);
+                    
+                    // プログレスバーや統計の更新をトリガー
+                    if (typeof saveTrueCountToLocalStorage === 'function') {
+                        saveTrueCountToLocalStorage();
+                    }
+                } else {
+                    alert('記録の保存に失敗しました。もう一度お試しください。');
+                }
+            });
+            
+            // 初期状態のチェック
+            if (typeof SELF_TRAINING_CONFIG !== 'undefined') {
+                checkSelfTrainingEnabled();
+                
+                // 設定変更を監視（定期チェック）
+                setInterval(checkSelfTrainingEnabled, 1000);
+            }
+        });
+    </script>
+    
     <!-- <script>
       document.addEventListener('DOMContentLoaded', function() {
         var collapseEl = document.getElementById('icon-legend');

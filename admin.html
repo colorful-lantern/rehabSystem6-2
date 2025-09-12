@@ -254,6 +254,7 @@
     <div style="height: 200px;"></div>
 
     <script src="js/config.js"></script>
+    <script src="js/self_training_test.js"></script>
     <script>
         // 管理者パスワード（本来はサーバーサイドで管理すべき）
         const ADMIN_PASSWORD = "admin2025";
@@ -263,7 +264,8 @@
             0: '理学療法',
             1: '言語療法', 
             2: '作業療法',
-            3: '心理療法'
+            3: '心理療法',
+            4: '自主トレーニング'
         };
 
         // ページ読み込み時にパスワードモーダルを表示
@@ -342,7 +344,7 @@
                 
                 // 実施済みのリハビリのみを収集
                 const completedRehabs = [];
-                for (let i = 0; i <= 3; i++) {
+                for (let i = 0; i <= 4; i++) {
                     if (dateData[i] === true) {
                         completedRehabs.push({
                             index: i,
@@ -367,6 +369,16 @@
                     
                     // 実施済みリハビリのみ表示
                     completedRehabs.forEach(rehab => {
+                        let extraInfo = '';
+                        if (rehab.index === 4) {
+                            // 自主トレーニングの場合、テキスト内容を表示
+                            const selfTrainingManager = new SelfTrainingManager();
+                            const text = selfTrainingManager.getTextContent(date);
+                            if (text) {
+                                extraInfo = `<div class="text-muted small mt-1" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${text}</div>`;
+                            }
+                        }
+                        
                         html += `
                             <div class="admin-data-item has-data">
                                 <div>
@@ -374,6 +386,7 @@
                                     <div class="rehab-type">
                                         <i class="bi bi-check-circle-fill text-success"></i> 実施済み
                                     </div>
+                                    ${extraInfo}
                                 </div>
                                 <button class="btn btn-danger btn-sm delete-btn" 
                                         onclick="confirmDelete('${date}', ${rehab.index}, '${rehab.name}', '${formattedDate}')">
@@ -436,14 +449,20 @@
                 
                 if (date === today) {
                     // 今日のデータを削除
-                    for (let i = 0; i <= 3; i++) {
+                    for (let i = 0; i <= 4; i++) {
                         localStorage.removeItem(`each${i}`);
                     }
                     // status_も削除して完全にクリア
                     localStorage.removeItem(`status_${today}`);
+                    // 自主トレーニングの記録とテキストも削除
+                    const selfTrainingManager = new SelfTrainingManager();
+                    selfTrainingManager.deleteRecord(today);
                 } else {
                     // 過去のデータを削除
                     localStorage.removeItem(`status_${date}`);
+                    // 自主トレーニングの記録とテキストも削除
+                    const selfTrainingManager = new SelfTrainingManager();
+                    selfTrainingManager.deleteRecord(date);
                 }
                 
                 modal.hide();
@@ -465,6 +484,7 @@
         function getAllRehabData() {
             const data = {};
             const today = new Date().toISOString().split('T')[0];
+            const selfTrainingManager = new SelfTrainingManager();
             
             // 現在の各リハビリの状態をチェック（今日の分）
             let hasTodayData = false;
@@ -480,6 +500,15 @@
                     data[today][i] = storedData === 'true';
                     hasTodayData = true;
                 }
+            }
+            
+            // 今日の自主トレーニングデータをチェック
+            if (selfTrainingManager.hasRecord(today)) {
+                if (!data[today]) {
+                    data[today] = {};
+                }
+                data[today][4] = true;
+                hasTodayData = true;
             }
             
             // status_キーから過去の日付データを取得
@@ -521,6 +550,11 @@
                                     data[date][i] = true;
                                 }
                             }
+                        }
+                        
+                        // 過去の自主トレーニングデータもチェック
+                        if (selfTrainingManager.hasRecord(date)) {
+                            data[date][4] = true;
                         }
                     }
                 }
@@ -566,14 +600,28 @@
             
             if (date === today) {
                 // 今日のデータの場合：LocalStorageから直接削除
-                const eachKey = `each${rehabIndex}`;
-                localStorage.removeItem(eachKey);
+                if (rehabIndex === 4) {
+                    // 自主トレーニングの場合
+                    const selfTrainingManager = new SelfTrainingManager();
+                    selfTrainingManager.deleteRecord(today);
+                } else {
+                    // 従来のリハビリの場合
+                    const eachKey = `each${rehabIndex}`;
+                    localStorage.removeItem(eachKey);
+                }
                 
                 // 今日のstatus_を更新（削除後に自動再生成しない）
                 updateStatusDataAfterDelete();
             } else {
                 // 過去のデータの場合：status_データを更新
-                updatePastStatusData(date, rehabIndex);
+                if (rehabIndex === 4) {
+                    // 自主トレーニングの場合
+                    const selfTrainingManager = new SelfTrainingManager();
+                    selfTrainingManager.deleteRecord(date);
+                } else {
+                    // 従来のリハビリの場合：status_データを更新
+                    updatePastStatusData(date, rehabIndex);
+                }
             }
             
             // データを再読み込み
@@ -698,13 +746,25 @@
                 }
             }
             
-            // 今日の日付のstatus_を更新
+            // 自主トレーニングのデータも確認（ポイント計算には含めない）
             const today = new Date().toISOString().split('T')[0];
+            const selfTrainingManager = new SelfTrainingManager();
+            if (selfTrainingManager.hasRecord(today)) {
+                achievedStatus.push(`each4=true`);
+            }
+            
+            // 今日の日付のstatus_を更新
             const totalRehabilitations = parseInt(localStorage.getItem('numberofClass') || 0);
             
-            if (cnt === 0 || achievedStatus.length === 0) {
-                // データが何もない場合はstatus_を削除
-                localStorage.removeItem(`status_${today}`);
+            if (cnt === 0 && achievedStatus.filter(s => !s.startsWith('each4')).length === 0) {
+                // リハビリデータが何もない場合（自主トレーニングのみの場合も含む）
+                if (achievedStatus.some(s => s.startsWith('each4'))) {
+                    // 自主トレーニングのみある場合
+                    localStorage.setItem(`status_${today}`, '0,' + achievedStatus.join(','));
+                } else {
+                    // 何もない場合はstatus_を削除
+                    localStorage.removeItem(`status_${today}`);
+                }
                 localStorage.setItem('nmboftrue', '0');
             } else {
                 let statusValue = '';

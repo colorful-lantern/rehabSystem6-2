@@ -1,4 +1,4 @@
-// htmlのid=rehabilitation1~4のcheckboxのvalueをlocalstorageに保存する
+// htmlのid=rehabilitation1~5のcheckboxのvalueをlocalstorageに保存する
 ['save'].forEach(function(buttonId) {
     document.getElementById(buttonId).addEventListener('click', function() {
         document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
@@ -57,7 +57,7 @@ function saveCheckboxStates() {
 }
 
 function saveCheckboxStatesMin() {
-    document.querySelectorAll('#rehabilitation1, #rehabilitation2, #rehabilitation3, #rehabilitation4').forEach(function(checkbox) {
+    document.querySelectorAll('#rehabilitation1, #rehabilitation2, #rehabilitation3, #rehabilitation4, #rehabilitation5').forEach(function(checkbox) {
         const key = checkbox.id;
         const value = localStorage.getItem(key);
         if (value === 'true') {
@@ -68,10 +68,10 @@ function saveCheckboxStatesMin() {
     });
 }
 
-// localstrage のkey=rehabilitation1~4のvalueを取得して、htmlのid=rehabilitation1~4のcheckboxにチェックを入れる
+// localstrage のkey=rehabilitation1~5のvalueを取得して、htmlのid=rehabilitation1~5のcheckboxにチェックを入れる
 function loadCheckboxStates() {
     let cnt = 0;
-    document.querySelectorAll('#rehabilitation1, #rehabilitation2, #rehabilitation3, #rehabilitation4').forEach(function(checkbox) {
+    document.querySelectorAll('#rehabilitation1, #rehabilitation2, #rehabilitation3, #rehabilitation4, #rehabilitation5').forEach(function(checkbox) {
         const key = checkbox.id;
         const value = localStorage.getItem(key);
         if (value === 'true') {

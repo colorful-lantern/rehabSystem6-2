@@ -64,11 +64,11 @@ function saveQueryParamsToLocalStorage() {
 }
 saveQueryParamsToLocalStorage();
 
-// URLパラメータのeach0-3=trueでリハビリデータを設定
+// URLパラメータのeach0-4=trueでリハビリデータを設定
 (function handleEachParamsFromUrl() {
     const params = new URLSearchParams(location.search);
     
-    for (let i = 0; i <= 3; i++) {
+    for (let i = 0; i <= 4; i++) { // 0-4に拡張（自主トレーニング対応）
         const eachKey = `each${i}`;
         const paramValue = params.get(eachKey);
         
@@ -79,33 +79,58 @@ saveQueryParamsToLocalStorage();
                 RestDayManager.removeRestDay(today);
             }
             
-            const rehabKey = `rehabilitation${i + 1}`;
-            const isRehabEnabled = localStorage.getItem(rehabKey) === 'true';
-            
-            if (isRehabEnabled) {
-                // 対応するrehabilitationが有効な場合は設定
-                localStorage.setItem(eachKey, 'true');
+            // 自主トレーニング（each4）の特別処理
+            if (i === 4) {
+                const rehabKey = SELF_TRAINING_CONFIG.REHAB_KEY;
+                const isRehabEnabled = localStorage.getItem(rehabKey) === 'true';
+                
+                if (isRehabEnabled) {
+                    localStorage.setItem(eachKey, 'true');
+                } else {
+                    // 設定されていない場合はモーダルで確認
+                    showRehabilitationRegistrationModal('自主トレーニング', rehabKey, eachKey);
+                }
             } else {
-                // 設定されていないリハビリの場合、モーダルで確認
-                const rehabName = getRehabilitationName(i);
-                showRehabilitationRegistrationModal(rehabName, rehabKey, eachKey);
+                // 従来の4項目の処理
+                const rehabKey = `rehabilitation${i + 1}`;
+                const isRehabEnabled = localStorage.getItem(rehabKey) === 'true';
+                
+                if (isRehabEnabled) {
+                    // 対応するrehabilitationが有効な場合は設定
+                    localStorage.setItem(eachKey, 'true');
+                } else {
+                    // 設定されていないリハビリの場合、モーダルで確認
+                    const rehabName = getRehabilitationName(i);
+                    showRehabilitationRegistrationModal(rehabName, rehabKey, eachKey);
+                }
             }
         } else if (paramValue === 'false') {
             // 削除処理
-            const rehabKey = `rehabilitation${i + 1}`;
-            if (localStorage.getItem(rehabKey) === 'true') {
-                var rehabName = '';
-                switch (i) {
-                    case 0: rehabName = '理学療法'; break;
-                    case 1: rehabName = '言語療法'; break;
-                    case 2: rehabName = '作業療法'; break;
-                    case 3: rehabName = '心理療法'; break;
-                    default: rehabName = `未定義`;
+            if (i === 4) {
+                // 自主トレーニングの削除
+                if (localStorage.getItem(SELF_TRAINING_CONFIG.REHAB_KEY) === 'true') {
+                    alert('自主トレーニングの記録を削除します。');
+                    localStorage.removeItem(eachKey);
+                } else {
+                    alert('自主トレーニングの記録はありません。');
                 }
-                alert(`${rehabName}の記録を削除します。`);
-                localStorage.removeItem(eachKey);
             } else {
-                alert('このリハビリの記録はありません。');
+                // 従来の4項目の削除処理
+                const rehabKey = `rehabilitation${i + 1}`;
+                if (localStorage.getItem(rehabKey) === 'true') {
+                    var rehabName = '';
+                    switch (i) {
+                        case 0: rehabName = '理学療法'; break;
+                        case 1: rehabName = '言語療法'; break;
+                        case 2: rehabName = '作業療法'; break;
+                        case 3: rehabName = '心理療法'; break;
+                        default: rehabName = `未定義`;
+                    }
+                    alert(`${rehabName}の記録を削除します。`);
+                    localStorage.removeItem(eachKey);
+                } else {
+                    alert('このリハビリの記録はありません。');
+                }
             }
         }
     }
@@ -118,6 +143,7 @@ function getRehabilitationName(index) {
         case 1: return '言語療法';
         case 2: return '作業療法';
         case 3: return '心理療法';
+        case 4: return '自主トレーニング';
         default: return '未定義';
     }
 }
@@ -2054,7 +2080,25 @@ document.addEventListener('DOMContentLoaded', function() {
         DisplayState.isInitializing = false;
     });
     
-    // 4. **パフォーマンス監視: メモリ使用量チェック**
+    // 5. **自主トレーニング設定の読み込み**
+    if (typeof SelfTrainingSettings !== 'undefined') {
+        SelfTrainingSettings.loadSettings();
+        
+        // 古いテキストデータのクリーンアップ（週1回実行）
+        const lastCleanup = localStorage.getItem('lastSelfTrainingCleanup');
+        const now = Date.now();
+        const weekInMs = 7 * 24 * 60 * 60 * 1000; // 1週間
+        
+        if (!lastCleanup || now - parseInt(lastCleanup) > weekInMs) {
+            const cleanedCount = SelfTrainingManager.cleanOldTextData();
+            if (cleanedCount > 0) {
+                console.log(`自主トレーニング: ${cleanedCount}件の古いテキストを削除しました`);
+            }
+            localStorage.setItem('lastSelfTrainingCleanup', now.toString());
+        }
+    }
+    
+    // 6. **パフォーマンス監視: メモリ使用量チェック**
     if (window.performance && window.performance.memory) {
         const memInfo = window.performance.memory;
         if (memInfo.usedJSHeapSize > 50 * 1024 * 1024) { // 50MB超過時
