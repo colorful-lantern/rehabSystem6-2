@@ -190,60 +190,32 @@
           </div>
           <div class="d-flex align-baseline justify-content-end m-0 p-0" style="font-size: 1rem; color: #666; transition: opacity 0.4s ease-in-out;"></div>
           
-          <!-- ランク情報表示 -->
-          <div class="mt-3">
-            <div class="text-start mb-2">
-              <span class="fw-bold" style="font-size: 1.2rem;">ランク一覧</span>
-            </div>
+          <!-- ランクアイコン表示 -->
+          <!-- <div class="mt-3 mb-2">
             <div class="table-responsive">
               <table class="table table-borderless m-auto" style="max-width: 400px;">
                 <tbody>
                   <tr id="rank-names-row">
-                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 0.9rem;">ビギナー</span></td>
-                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 0.9rem;">ブロンズ</span></td>
-                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 0.9rem;">シルバー</span></td>
-                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 0.9rem;">ゴールド</span></td>
-                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 0.9rem;">プラチナ</span></td>
+                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 0.8rem;">ビギナー</span></td>
+                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 0.8rem;">ブロンズ</span></td>
+                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 0.8rem;">シルバー</span></td>
+                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 0.8rem;">ゴールド</span></td>
+                    <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 0.8rem;">プラチナ</span></td>
                   </tr>
-                  <tr id="rank-status-row-index">
+                  <tr id="rank-status-row-index"> -->
                     <!-- ランクアイコン/ステータスがここに動的に挿入されます -->
-                  </tr>
+                  <!-- </tr>
                 </tbody>
               </table>
             </div>
-            
-            <!-- ランクについてのアコーディオン -->
-            <div class="mt-3">
-              <div class="container-fluid m-0 p-0">
-                <button class="btn btn-link text-secondary fw-bold ms-1" type="button"
-                  data-bs-toggle="collapse" data-bs-target="#rank-explanation"
-                  aria-expanded="false" aria-controls="rank-explanation"
-                  style="text-decoration:none; font-size:1.1rem;">
-                  ランクについて <span id="rank-explanation-arrow">▼</span>
-                </button>
-                <div class="collapse" id="rank-explanation">
-                  <div class="card mt-2" style="border-radius: 12px;">
-                    <div class="card-body">
-                      <h6 class="card-title text-center"><i class="bi bi-award fs-4"></i> ランクシステム</h6>
-                      <p class="card-text text-center" style="font-size: 1rem;">1日のリハビリをすべて完了すると1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
-                      
-                      <!-- ランク一覧 -->
-                      <div class="alert alert-info m-1 p-2">
-                        <div class="text-center">
-                          <strong>ランク一覧</strong><br>
-                          <div style="font-size: 0.95rem; line-height: 1.8; margin-top: 8px;">
-                            <span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 0.9rem;">ビギナー</span>：0〜9ポイント<br>
-                            <span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 0.9rem;">ブロンズ</span>：10〜29ポイント<br>
-                            <span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 0.9rem;">シルバー</span>：30〜59ポイント<br>
-                            <span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 0.9rem;">ゴールド</span>：60〜99ポイント<br>
-                            <span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 0.9rem;">プラチナ</span>：100ポイント以上
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          </div> -->
+          
+          <!-- バッジを見るボタン -->
+          <div class="mt-2" id="rank-info">
+            <div class="text-center">
+              <button id="rankDetailsBtn" class="btn btn-outline-primary" style="border-radius: 8px; font-size: 1rem; padding: 0.6rem 1.2rem;">
+                <i class="bi bi-award me-2"></i>バッジを見る
+              </button>
             </div>
           </div>
         </div>
@@ -316,6 +288,82 @@
             <button type="button" class="btn btn-primary" id="saveSelfTraining">
               <i class="bi bi-check-circle me-2"></i>記録する
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ランク詳細モーダル -->
+    <div class="modal fade" id="rankDetailsModal" tabindex="-1" aria-labelledby="rankDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="rankDetailsModalLabel">
+              <i class="bi bi-award me-2" style="color: #daa520;"></i>
+              ランク・バッジ詳細
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- ランク一覧テーブル -->
+            <div class="mb-4">
+              <div class="text-start mb-3">
+                <span class="fw-bold" style="font-size: 1.3rem;">ランク一覧</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-borderless m-auto" style="max-width: 400px;">
+                  <tbody>
+                    <tr id="rank-names-row-modal">
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 0.9rem;">ビギナー</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 0.9rem;">ブロンズ</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 0.9rem;">シルバー</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 0.9rem;">ゴールド</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 0.9rem;">プラチナ</span></td>
+                    </tr>
+                    <tr id="rank-status-row-modal">
+                      <!-- ランクアイコン/ステータスがここに動的に挿入されます -->
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- ランクについてのアコーディオン -->
+            <div class="mt-3">
+              <div class="container-fluid m-0 p-0">
+                <button class="btn btn-link text-secondary fw-bold ms-1" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#rank-explanation-modal"
+                  aria-expanded="false" aria-controls="rank-explanation-modal"
+                  style="text-decoration:none; font-size:1.2rem;">
+                  ランクについて <span id="rank-explanation-arrow-modal">▼</span>
+                </button>
+                <div class="collapse" id="rank-explanation-modal">
+                  <div class="card mt-2" style="border-radius: 12px;">
+                    <div class="card-body">
+                      <h6 class="card-title text-center"><i class="bi bi-award fs-4"></i> ランクシステム</h6>
+                      <p class="card-text text-center" style="font-size: 1.1rem;">1日のリハビリをすべて完了すると1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
+                      
+                      <!-- ランク一覧 -->
+                      <div class="alert alert-info m-1 p-3">
+                        <div class="text-center">
+                          <strong style="font-size: 1.1rem;">ランク一覧</strong><br>
+                          <div style="font-size: 1rem; line-height: 2; margin-top: 12px;">
+                            <span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 1rem;">ビギナー</span>：0〜9ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 1rem;">ブロンズ</span>：10〜29ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 1rem;">シルバー</span>：30〜59ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 1rem;">ゴールド</span>：60〜99ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 1rem;">プラチナ</span>：100ポイント以上
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
           </div>
         </div>
       </div>
@@ -448,18 +496,6 @@
             }, 5000);
         });
     </script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var collapseEl = document.getElementById('rank-explanation');
-        var arrow = document.getElementById('rank-explanation-arrow');
-        collapseEl.addEventListener('show.bs.collapse', function () {
-          arrow.textContent = '▲';
-        });
-        collapseEl.addEventListener('hide.bs.collapse', function () {
-          arrow.textContent = '▼';
-        });
-      });
-    </script>
     
     <!-- 自主トレーニング機能 -->
     <script>
@@ -487,9 +523,8 @@
             function updateSelfTrainingButton() {
                 const today = new Date().toISOString().split('T')[0];
                 const hasRecord = SelfTrainingManager.hasRecord(today);
-                const isCompleted = localStorage.getItem(SELF_TRAINING_CONFIG.EACH_KEY) === 'true';
                 
-                if (hasRecord || isCompleted) {
+                if (hasRecord) {
                     selfTrainingBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>記録済み';
                     selfTrainingBtn.className = 'btn btn-success w-100';
                     selfTrainingBtn.disabled = false; // 再編集可能
@@ -630,6 +665,84 @@
                 
                 // 設定変更を監視（定期チェック）
                 setInterval(checkSelfTrainingEnabled, 1000);
+            }
+        });
+    </script>
+    
+    <!-- ランク詳細モーダル用スクリプト -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ランク詳細ボタンとモーダルの初期化
+            const rankDetailsBtn = document.getElementById('rankDetailsBtn');
+            const rankDetailsModal = new bootstrap.Modal(document.getElementById('rankDetailsModal'));
+            
+            // ボタンクリックでモーダル表示
+            if (rankDetailsBtn) {
+                rankDetailsBtn.addEventListener('click', function() {
+                    // モーダル内のランクステータス行を更新
+                    updateModalRankStatus();
+                    rankDetailsModal.show();
+                });
+            }
+            
+            // モーダル内のランクステータスを更新する関数
+            function updateModalRankStatus() {
+                const modalRankStatusRow = document.getElementById('rank-status-row-modal');
+                
+                if (modalRankStatusRow) {
+                    // script.jsの関数を直接呼び出してランクアイコンを生成
+                    if (typeof updateIndexRankDisplay === 'function') {
+                        // 一時的にメインページの要素を作成してランクアイコンを生成
+                        const tempElement = document.createElement('tr');
+                        tempElement.id = 'rank-status-row-index';
+                        document.body.appendChild(tempElement);
+                        
+                        // ランク表示を更新
+                        updateIndexRankDisplay();
+                        
+                        // 生成されたコンテンツをモーダルにコピー
+                        modalRankStatusRow.innerHTML = tempElement.innerHTML;
+                        
+                        // 一時要素を削除
+                        document.body.removeChild(tempElement);
+                    } else {
+                        // フォールバック: 基本的なランクアイコンを表示
+                        generateBasicRankIcons(modalRankStatusRow);
+                    }
+                }
+            }
+            
+            // 基本的なランクアイコンを生成する関数（フォールバック用）
+            function generateBasicRankIcons(targetRow) {
+                const ranks = [
+                    { name: 'ビギナー', icon: '🥉', color: '#495057' },
+                    { name: 'ブロンズ', icon: '🥉', color: '#b8860b' },
+                    { name: 'シルバー', icon: '🥈', color: '#708090' },
+                    { name: 'ゴールド', icon: '🥇', color: '#daa520' },
+                    { name: 'プラチナ', icon: '👑', color: '#4a4a4a' }
+                ];
+                
+                let html = '';
+                ranks.forEach((rank, index) => {
+                    html += `<td class="text-center p-1">
+                        <span style="font-size: 1.5rem;">${rank.icon}</span>
+                    </td>`;
+                });
+                
+                targetRow.innerHTML = html;
+            }
+            
+            // モーダル内のアコーディオン制御
+            const collapseElModal = document.getElementById('rank-explanation-modal');
+            const arrowModal = document.getElementById('rank-explanation-arrow-modal');
+            
+            if (collapseElModal && arrowModal) {
+                collapseElModal.addEventListener('show.bs.collapse', function () {
+                    arrowModal.textContent = '▲';
+                });
+                collapseElModal.addEventListener('hide.bs.collapse', function () {
+                    arrowModal.textContent = '▼';
+                });
             }
         });
     </script>
