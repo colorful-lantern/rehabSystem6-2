@@ -57,6 +57,61 @@ const StorageCache = {
     }
 };
 
+// **カウンター管理機能（URLパラメータ処理より前に定義）**
+const RehabCounterManager = {
+    // カウンターを取得（デフォルト0）
+    getCount: function(rehabIndex) {
+        const countKey = `each${rehabIndex}_count`;
+        return parseInt(localStorage.getItem(countKey) || '0');
+    },
+    
+    // カウンターを設定
+    setCount: function(rehabIndex, count) {
+        const countKey = `each${rehabIndex}_count`;
+        localStorage.setItem(countKey, count.toString());
+    },
+    
+    // カウンターを増加
+    incrementCount: function(rehabIndex) {
+        const currentCount = this.getCount(rehabIndex);
+        this.setCount(rehabIndex, currentCount + 1);
+        return currentCount + 1;
+    },
+    
+    // カウンターをリセット（0に設定）
+    resetCount: function(rehabIndex) {
+        this.setCount(rehabIndex, 0);
+    },
+    
+    // カウンターを削除
+    removeCount: function(rehabIndex) {
+        const countKey = `each${rehabIndex}_count`;
+        localStorage.removeItem(countKey);
+    },
+    
+    // 指定リハビリが実施済みかチェック（1回以上で完了扱い）
+    isCompleted: function(rehabIndex) {
+        return this.getCount(rehabIndex) > 0;
+    },
+    
+    // すべてのカウンターをリセット（日付変更時用）
+    resetAllCounts: function() {
+        for (let i = 0; i <= 3; i++) {
+            this.resetCount(i);
+        }
+    },
+    
+    // デバッグ用: 現在の状態を表示
+    debugStatus: function() {
+        console.log('=== RehabCounterManager Status ===');
+        for (let i = 0; i <= 3; i++) {
+            const count = this.getCount(i);
+            const completed = this.isCompleted(i);
+            console.log(`each${i}: count=${count}, completed=${completed}`);
+        }
+    }
+};
+
 // Query parameters are saved to local storage as key-value pairs.
 function saveQueryParamsToLocalStorage() {
     const params = new URLSearchParams(location.search);
@@ -91,13 +146,14 @@ saveQueryParamsToLocalStorage();
                     showRehabilitationRegistrationModal('自主トレーニング', rehabKey, eachKey);
                 }
             } else {
-                // 従来の4項目の処理
+                // 従来の4項目の処理（カウンター方式対応）
                 const rehabKey = `rehabilitation${i + 1}`;
                 const isRehabEnabled = localStorage.getItem(rehabKey) === 'true';
                 
                 if (isRehabEnabled) {
-                    // 対応するrehabilitationが有効な場合は設定
-                    localStorage.setItem(eachKey, 'true');
+                    // カウンター方式で記録
+                    const newCount = RehabCounterManager.incrementCount(i);
+                    console.log(`リハビリ記録: each${i} のカウントを ${newCount} に増加`);
                 } else {
                     // 設定されていないリハビリの場合、モーダルで確認
                     const rehabName = getRehabilitationName(i);
@@ -115,19 +171,24 @@ saveQueryParamsToLocalStorage();
                     alert('自主トレーニングの記録はありません。');
                 }
             } else {
-                // 従来の4項目の削除処理
+                // 従来の4項目の削除処理（カウンター方式対応）
                 const rehabKey = `rehabilitation${i + 1}`;
                 if (localStorage.getItem(rehabKey) === 'true') {
-                    var rehabName = '';
-                    switch (i) {
-                        case 0: rehabName = '理学療法'; break;
-                        case 1: rehabName = '言語療法'; break;
-                        case 2: rehabName = '作業療法'; break;
-                        case 3: rehabName = '心理療法'; break;
-                        default: rehabName = `未定義`;
+                    const currentCount = RehabCounterManager.getCount(i);
+                    if (currentCount > 0) {
+                        var rehabName = '';
+                        switch (i) {
+                            case 0: rehabName = '理学療法'; break;
+                            case 1: rehabName = '言語療法'; break;
+                            case 2: rehabName = '作業療法'; break;
+                            case 3: rehabName = '心理療法'; break;
+                            default: rehabName = `未定義`;
+                        }
+                        alert(`${rehabName}の記録を削除します。(${currentCount}回 → 0回)`);
+                        RehabCounterManager.resetCount(i);
+                    } else {
+                        alert('このリハビリの記録はありません。');
                     }
-                    alert(`${rehabName}の記録を削除します。`);
-                    localStorage.removeItem(eachKey);
                 } else {
                     alert('このリハビリの記録はありません。');
                 }
@@ -188,7 +249,17 @@ function showRehabilitationRegistrationModal(rehabName, rehabKey, eachKey) {
     confirmBtn.addEventListener('click', function() {
         // リハビリテーションを有効化
         localStorage.setItem(rehabKey, 'true');
-        localStorage.setItem(eachKey, 'true');
+        
+        // カウンター方式で記録（自主トレーニング以外）
+        if (eachKey === 'each4') {
+            // 自主トレーニングは従来通り
+            localStorage.setItem(eachKey, 'true');
+        } else {
+            // each0-3はカウンター方式
+            const rehabIndex = parseInt(eachKey.replace('each', ''));
+            RehabCounterManager.incrementCount(rehabIndex);
+            console.log(`新規登録でリハビリ記録: ${eachKey} のカウントを1に設定`);
+        }
         
         // numberofClassを更新
         const currentNumberOfClass = parseInt(localStorage.getItem('numberofClass') || 0);
@@ -220,9 +291,10 @@ function showRehabilitationRegistrationModal(rehabName, rehabKey, eachKey) {
     const lastAccessDate = localStorage.getItem('lastAccessDate');
 
     if (lastAccessDate !== today) {
-        // 日付が変わった場合、each0~3を削除
+        // 日付が変わった場合、each0~3と新形式のカウンターを削除
         for (let i = 0; i <= 3; i++) {
-            localStorage.removeItem(`each${i}`);
+            localStorage.removeItem(`each${i}`); // 旧形式
+            localStorage.removeItem(`each${i}_count`); // 新形式
         }
 
         // 1年以上前のデータを削除
@@ -243,7 +315,84 @@ function showRehabilitationRegistrationModal(rehabName, rehabKey, eachKey) {
     }
 })();
 
-// localstrageのkey(each0~3)のvalueがtrueである場合、cntを足して、その数を、localstrageのkey=nmboftrueに保存する
+// **新機能: カウンター方式へのマイグレーション機能**
+(function migrateToCounterSystem() {
+    // マイグレーション実行フラグをチェック
+    const migrationKey = 'counter_migration_completed';
+    if (localStorage.getItem(migrationKey) === 'true') {
+        return; // 既にマイグレーション完了済み
+    }
+    
+    console.log('カウンター方式へのマイグレーションを開始...');
+    let migratedCount = 0;
+    
+    // each0-3の既存データをカウンター形式に変換
+    for (let i = 0; i <= 3; i++) {
+        const oldKey = `each${i}`;
+        const countKey = `each${i}_count`;
+        const oldValue = localStorage.getItem(oldKey);
+        
+        if (oldValue === 'true') {
+            // 旧形式（boolean）を新形式（count）に変換
+            localStorage.setItem(countKey, '1');
+            localStorage.removeItem(oldKey);
+            migratedCount++;
+            console.log(`マイグレーション: ${oldKey}=true → ${countKey}=1`);
+        } else if (oldValue === 'false') {
+            // falseの場合はカウンター不要（デフォルト0）
+            localStorage.removeItem(oldKey);
+            console.log(`マイグレーション: ${oldKey}=false → 削除`);
+        }
+        // nullの場合は何もしない（未設定状態維持）
+    }
+    
+    // ステータスデータのマイグレーション
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('status_')) {
+            const statusValue = localStorage.getItem(key);
+            if (statusValue && statusValue.includes('each') && statusValue.includes('=true')) {
+                // 旧形式のステータスデータを新形式に変換
+                const newStatusValue = migrateStatusData(statusValue);
+                if (newStatusValue !== statusValue) {
+                    localStorage.setItem(key, newStatusValue);
+                    console.log(`ステータスマイグレーション: ${key}`);
+                }
+            }
+        }
+    });
+    
+    // マイグレーション完了フラグを設定
+    localStorage.setItem(migrationKey, 'true');
+    console.log(`マイグレーション完了: ${migratedCount}件のデータを変換`);
+})();
+
+// ステータスデータのマイグレーション用ヘルパー関数
+function migrateStatusData(statusValue) {
+    try {
+        const parts = statusValue.split(',');
+        const completionFlag = parts[0]; // "0" or "1"
+        const newParts = [completionFlag];
+        
+        // each0=true形式を each0=1形式に変換
+        for (let i = 1; i < parts.length; i++) {
+            const part = parts[i];
+            if (part.includes('=true')) {
+                newParts.push(part.replace('=true', '=1'));
+            } else if (part.includes('=false')) {
+                newParts.push(part.replace('=false', '=0'));
+            } else {
+                newParts.push(part); // その他はそのまま
+            }
+        }
+        
+        return newParts.join(',');
+    } catch (error) {
+        console.error('ステータスデータマイグレーションエラー:', error);
+        return statusValue; // エラー時は元の値を返す
+    }
+}
+
+// localstrageのkey(each0~3)のカウンター値に基づいて完了数を計算し、localstrageのkey=nmboftrueに保存する
 function saveTrueCountToLocalStorage() {
     let cnt = 0;
     let achievedStatus = [];
@@ -260,23 +409,27 @@ function saveTrueCountToLocalStorage() {
     
     for (let i = 0; i <= 3; i++) {
         let key = `each${i}`;
-        const value = localStorage.getItem(key);
         const key2 = `rehabilitation${i + 1}`;
         const value2 = localStorage.getItem(key2);
         
-        // 取り組むリハビリのみ記録、each0-3=trueでアクセスされた場合のみ初期値設定を許可
+        // 取り組むリハビリのみ記録
         if (value2 === 'true') {
-            if (value === 'true') {
+            // カウンター方式で完了判定
+            const isCompleted = RehabCounterManager.isCompleted(i);
+            const count = RehabCounterManager.getCount(i);
+            
+            if (isCompleted) {
                 cnt++;
-                achievedStatus.push(`${key}=true`);
-            } else if (value === 'false') {
-                achievedStatus.push(`${key}=false`);
-            } else if (value === null && hasEachTrueParam) {
-                // URLパラメータでeach0-3=trueでアクセスされた場合のみ初期値'false'を設定
-                localStorage.setItem(key, 'false');
-                achievedStatus.push(`${key}=false`);
+                achievedStatus.push(`${key}=${count}`); // 実施回数を記録
+            } else {
+                achievedStatus.push(`${key}=0`); // 未実施は0
             }
-            // valueがnullでURLパラメータもない場合は何もしない（自動生成しない）
+            
+            // 旧形式との互換性維持（URLパラメータアクセス時の初期値設定）
+            const oldValue = localStorage.getItem(key);
+            if (oldValue === null && hasEachTrueParam && !isCompleted) {
+                achievedStatus[achievedStatus.length - 1] = `${key}=0`; // 明示的に0を設定
+            }
         }
     }
     localStorage.setItem('nmboftrue', cnt);
@@ -333,6 +486,119 @@ function saveTrueCountToLocalStorage() {
 }
 saveTrueCountToLocalStorage();
 
+// **新機能: カウンターシステムのテスト機能**
+const CounterSystemTester = {
+    // 全体テストを実行
+    runAllTests: function() {
+        console.log('=== カウンターシステム全体テスト開始 ===');
+        
+        const tests = [
+            this.testBasicCounterOperations,
+            this.testURLParameterHandling,
+            this.testStatusDataGeneration,
+            this.testDisplayLogic
+        ];
+        
+        let passedTests = 0;
+        const totalTests = tests.length;
+        
+        tests.forEach((test, index) => {
+            try {
+                console.log(`\n--- テスト ${index + 1}/${totalTests}: ${test.name} ---`);
+                const result = test.call(this);
+                if (result) {
+                    console.log(`✅ ${test.name} - 成功`);
+                    passedTests++;
+                } else {
+                    console.log(`❌ ${test.name} - 失敗`);
+                }
+            } catch (error) {
+                console.error(`❌ ${test.name} - エラー:`, error);
+            }
+        });
+        
+        console.log(`\n=== テスト結果: ${passedTests}/${totalTests} 成功 ===`);
+        return passedTests === totalTests;
+    },
+    
+    // 基本的なカウンター操作のテスト
+    testBasicCounterOperations: function() {
+        // テスト用データをクリア
+        RehabCounterManager.resetCount(0);
+        
+        // 初期状態テスト
+        if (RehabCounterManager.getCount(0) !== 0) return false;
+        if (RehabCounterManager.isCompleted(0) !== false) return false;
+        
+        // インクリメントテスト
+        const count1 = RehabCounterManager.incrementCount(0);
+        if (count1 !== 1) return false;
+        if (RehabCounterManager.isCompleted(0) !== true) return false;
+        
+        // 複数インクリメントテスト
+        const count2 = RehabCounterManager.incrementCount(0);
+        const count3 = RehabCounterManager.incrementCount(0);
+        if (count3 !== 3) return false;
+        
+        // リセットテスト
+        RehabCounterManager.resetCount(0);
+        if (RehabCounterManager.getCount(0) !== 0) return false;
+        
+        return true;
+    },
+    
+    // URLパラメータ処理のテスト
+    testURLParameterHandling: function() {
+        // テスト用設定
+        localStorage.setItem('rehabilitation1', 'true');
+        RehabCounterManager.resetCount(0);
+        
+        // URLパラメータシミュレーション（内部処理のみテスト）
+        const initialCount = RehabCounterManager.getCount(0);
+        RehabCounterManager.incrementCount(0);
+        RehabCounterManager.incrementCount(0);
+        const finalCount = RehabCounterManager.getCount(0);
+        
+        return finalCount === initialCount + 2;
+    },
+    
+    // ステータスデータ生成のテスト
+    testStatusDataGeneration: function() {
+        // テスト用設定
+        localStorage.setItem('rehabilitation1', 'true');
+        localStorage.setItem('rehabilitation2', 'true');
+        RehabCounterManager.setCount(0, 2); // 2回実施
+        RehabCounterManager.setCount(1, 0); // 未実施
+        
+        // saveTrueCountToLocalStorage実行
+        saveTrueCountToLocalStorage();
+        
+        // 結果確認
+        const nmboftrue = localStorage.getItem('nmboftrue');
+        
+        // 完了数が正しいかチェック（1つ完了）
+        return nmboftrue === '1';
+    },
+    
+    // 表示ロジックのテスト
+    testDisplayLogic: function() {
+        // テスト用設定
+        RehabCounterManager.setCount(0, 3);
+        RehabCounterManager.setCount(1, 0);
+        
+        // 完了判定テスト
+        const completed0 = RehabCounterManager.isCompleted(0);
+        const completed1 = RehabCounterManager.isCompleted(1);
+        
+        return completed0 === true && completed1 === false;
+    }
+};
+
+// デバッグ用: テスト実行関数をグローバルに公開
+window.testCounterSystem = function() {
+    return CounterSystemTester.runAllTests();
+};
+
 // localstrage のkey=rehabilitation1~4のvalueを取得して、設定を確認する
 function loadCheckboxStates() {
     let cnt = 0;
@@ -369,11 +635,10 @@ if (location.search.includes('clear=true')) {
     location.reload();  
 };
 
-// Display icons based on local storage values for each0 to each3
+// Display icons based on local storage values for each0 to each3 (カウンター方式対応)
 function displayIconsBasedOnLocalStorage() {
     for (let i = 0; i <= 3; i++) {
         let key = `each${i}`;
-        const value = localStorage.getItem(key);
         const element = document.getElementById(`each${i}`);
 
         // DOM要素が存在しない場合は処理をスキップ（calender.htmlなど）
@@ -384,7 +649,12 @@ function displayIconsBasedOnLocalStorage() {
         const key2 = `rehabilitation${i+1}`;
         const value2 = localStorage.getItem(key2);
 
-        if (value === 'true') {
+        // カウンター方式で完了判定
+        const isCompleted = RehabCounterManager.isCompleted(i);
+        const count = RehabCounterManager.getCount(i);
+
+        if (isCompleted) {
+            // 完了済み（1回以上実施）
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             icon.setAttribute('class', 'bi bi-check-circle-fill');
             icon.setAttribute('fill', 'green');
@@ -395,9 +665,14 @@ function displayIconsBasedOnLocalStorage() {
                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.97 10.97a.75.75 0 0 0 1.07 0l3.992-3.992a.75.75 0 1 0-1.06-1.06L7.5 9.44 6.067 8.007a.75.75 0 1 0-1.06 1.06l1.963 1.963z"/>
             `;
             icon.style.color = 'green';
+            
+            // ツールチップで実施回数を表示
+            icon.setAttribute('title', `${count}回実施済み`);
+            
             element.appendChild(icon);
 
-        }else if(value2 === 'false'){
+        } else if(value2 === 'false') {
+            // リハビリ設定が無効
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             icon.setAttribute('class', 'bi bi-dash');
             icon.setAttribute('fill', 'currentColor');
@@ -409,7 +684,8 @@ function displayIconsBasedOnLocalStorage() {
             `;
             icon.style.color = 'gray';
             element.appendChild(icon);
-        }else{
+        } else {
+            // 未完了（0回実施）
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             icon.setAttribute('class', 'bi bi-x-circle-fill');
             icon.setAttribute('fill', 'red');
@@ -1136,7 +1412,7 @@ function createProgressBar(container, color, duration, fromColor, toColor, strok
                     }
                     
                     // あと○つのみ表示
-                    bottomText = '<div class="progress-bottom-text" style="font-size:2rem;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + remainingTasks + '</b><div style="font-size:1.2rem; display:inline;">つ</div></div>';
+                    bottomText = '<div class="progress-bottom-text" style="font-size:2rem;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + remainingTasks + '</b><div style="font-size:1.2rem; display:inline;">種類</div></div>';
                 }
                 
                 // メインテキストには現在の進捗を表示
@@ -1221,7 +1497,7 @@ function startBottomTextAnimation(circle, remainingTasks, totalDays) {
             // テキストを更新
             var bottomText;
             // あと○つのみ表示
-            bottomText = '<div class="progress-bottom-text" style="font-size:2rem; opacity:0;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + currentRemainingTasks + '</b><div style="font-size:1.2rem; display:inline;">つ</div></div>';
+            bottomText = '<div class="progress-bottom-text" style="font-size:2rem; opacity:0;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + currentRemainingTasks + '</b><div style="font-size:1.2rem; display:inline;">種類</div></div>';
             
             circle.setText(
                 '<div style="height: 2rem; display: flex; align-items: center; justify-content: center; font-size:1.5rem;">きょう</div>' +
@@ -1469,7 +1745,7 @@ function calculateAndSaveTotalRehab() {
     return totalRehab;
 }
 
-// カレンダー表示用の値を取得する関数（従来の表示方法を維持）
+// カレンダー表示用の値を取得する関数（カウンター方式対応、従来の表示方法を維持）
 function getDisplayValueForCalendar(statusValue) {
     if (!statusValue) return '';
     
@@ -1477,12 +1753,24 @@ function getDisplayValueForCalendar(statusValue) {
         return 'clear';
     }
     
-    // 新システムでも旧システムでも、実際の完了数をカウントして表示
+    // 新システム・旧システム両対応で、実際の完了数をカウントして表示
     const parts = statusValue.split(',');
     if (parts.length > 1) {
-        // each0=true, each1=false などの個数をカウント
-        const trueCount = parts.filter(part => part.includes('=true')).length;
-        return trueCount.toString();
+        let completedCount = 0;
+        
+        for (let i = 1; i < parts.length; i++) {
+            const part = parts[i];
+            if (part.includes('=')) {
+                const [key, value] = part.split('=');
+                
+                // 新形式（数値）と旧形式（true/false）の両方に対応
+                if (value === 'true' || (parseInt(value) > 0 && !isNaN(parseInt(value)))) {
+                    completedCount++;
+                }
+            }
+        }
+        
+        return completedCount.toString();
     }
     
     // フォールバック: 最初の部分をそのまま返す
@@ -2106,4 +2394,36 @@ document.addEventListener('DOMContentLoaded', function() {
             StorageCache.clear();
         }
     }
+});
+
+// **カウンターシステム初期化とテスト実行**
+document.addEventListener('DOMContentLoaded', function() {
+    // 開発環境でのみテスト実行（本番環境では無効化）
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (isDevelopment) {
+        console.log('開発環境でカウンターシステムテストを実行中...');
+        
+        // テスト実行（非同期で実行してページ読み込みをブロックしない）
+        setTimeout(() => {
+            try {
+                const testResult = CounterSystemTester.runAllTests();
+                if (testResult) {
+                    console.log('🎉 カウンターシステムのテストが全て成功しました！');
+                } else {
+                    console.warn('⚠️ 一部のテストが失敗しました。');
+                }
+            } catch (error) {
+                console.error('テスト実行エラー:', error);
+            }
+        }, 1000);
+    }
+    
+    // システム情報をコンソールに出力
+    console.log('=== マイリハビリシステム - カウンター方式対応版 ===');
+    console.log('バージョン: 6.1.1');
+    console.log('機能: 1日複数回リハビリ記録対応');
+    console.log('互換性: 既存データとの完全互換性');
+    console.log('マイグレーション: 自動実行');
+    console.log('===================================');
 });
