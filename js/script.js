@@ -653,53 +653,76 @@ function displayIconsBasedOnLocalStorage() {
         const isCompleted = RehabCounterManager.isCompleted(i);
         const count = RehabCounterManager.getCount(i);
 
-        if (isCompleted) {
-            // 完了済み（1回以上実施）
-            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            icon.setAttribute('class', 'bi bi-check-circle-fill');
-            icon.setAttribute('fill', 'green');
-            icon.setAttribute('viewBox', '0 0 16 16');
-            icon.setAttribute('width', '36');
-            icon.setAttribute('height', '36');
-            icon.innerHTML = `
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.97 10.97a.75.75 0 0 0 1.07 0l3.992-3.992a.75.75 0 1 0-1.06-1.06L7.5 9.44 6.067 8.007a.75.75 0 1 0-1.06 1.06l1.963 1.963z"/>
-            `;
-            icon.style.color = 'green';
-            
-            // ツールチップで実施回数を表示
-            icon.setAttribute('title', `${count}回実施済み`);
-            
-            element.appendChild(icon);
+        // 要素をクリア
+        element.innerHTML = '';
 
-        } else if(value2 === 'false') {
+        if (value2 === 'false') {
             // リハビリ設定が無効
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             icon.setAttribute('class', 'bi bi-dash');
             icon.setAttribute('fill', 'currentColor');
             icon.setAttribute('viewBox', '0 0 16 16');
-            icon.setAttribute('width', '36');
-            icon.setAttribute('height', '36');
+            icon.setAttribute('width', '24');
+            icon.setAttribute('height', '24');
             icon.innerHTML = `
                 <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
             `;
             icon.style.color = 'gray';
             element.appendChild(icon);
+            
+            // 背景色を設定
+            element.style.backgroundColor = '#f0f0f0';
+        } else if (isCompleted) {
+            // 完了済み（1回以上実施）
+            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            icon.setAttribute('class', 'bi bi-check-circle-fill');
+            icon.setAttribute('fill', 'green');
+            icon.setAttribute('viewBox', '0 0 16 16');
+            icon.setAttribute('width', '24');
+            icon.setAttribute('height', '24');
+            icon.innerHTML = `
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.97 10.97a.75.75 0 0 0 1.07 0l3.992-3.992a.75.75 0 1 0-1.06-1.06L7.5 9.44 6.067 8.007a.75.75 0 1 0-1.06 1.06l1.963 1.963z"/>
+            `;
+            icon.style.color = 'green';
+            element.appendChild(icon);
+            
+            // 回数テキストを追加
+            const countText = document.createElement('small');
+            countText.textContent = `${count}つ`;
+            countText.style.color = 'green';
+            countText.style.fontWeight = 'bold';
+            countText.style.marginTop = '2px';
+            countText.style.fontSize = '0.8rem';
+            element.appendChild(countText);
+            
+            // 背景色を設定
+            element.style.backgroundColor = '#e6f7e6';
         } else {
             // 未完了（0回実施）
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            icon.setAttribute('class', 'bi bi-x-circle-fill');
-            icon.setAttribute('fill', 'red');
+            icon.setAttribute('class', 'bi bi-x-circle');
+            icon.setAttribute('fill', 'gray');
             icon.setAttribute('viewBox', '0 0 16 16');
-            icon.setAttribute('width', '36');
-            icon.setAttribute('height', '36');
+            icon.setAttribute('width', '24');
+            icon.setAttribute('height', '24');
             icon.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-            </svg>
             `;
             icon.style.color = 'gray';
             element.appendChild(icon);
+            
+            // 回数テキストを追加
+            const countText = document.createElement('small');
+            countText.textContent = '0つ';
+            countText.style.color = 'gray';
+            countText.style.fontWeight = 'bold';
+            countText.style.marginTop = '2px';
+            countText.style.fontSize = '0.8rem';
+            element.appendChild(countText);
+            
+            // 背景色を設定
+            element.style.backgroundColor = '#f0f0f0';
         }
     }
 }
