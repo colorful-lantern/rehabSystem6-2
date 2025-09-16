@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <title>マイリハビリ-予約</title>
+    <style>
+
+    </style>
+  </head>
+  <body style="background-color: #c2e2ed;">
+    <!--ナビゲーションバー-->
+    <nav class="navbar navbar-expand-lg" style="background-color: #c2e2ed;">
+      <div class="container-fluid d-flex m-auto">
+        <p class="navbar-brandfw-bold fw-bold fs-3 text-black ms-1 my-1 me-0" id="title">マイリハビリ</p>
+      </div>
+    </nav>
+
+
+    <!--メインコンテンツ-->
+    <!--予約フォーム、予約する日付・取り組むリハビリの種類と個数-->
+    <div class="ms-3 me-3 mt-1">
+        <div class="h5 mb-3">よやくする</div>
+        <div class="mb-3">
+        <label class="form-label h6" for="date">よやくする日</label>
+        <input type="date" class="form-control" id="date" placeholder="日付を選択" />
+        </div>
+
+        <div class="h6">取り組むリハビリ</div>
+
+        <div class="mb-3">
+            <label class="h6 mb-2 me-2">理学療法</label>
+            <div id="each0info" class="btn-group bg-white" role="group">
+                <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio1" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="each0_btnradio1" value="0">0つ</label>
+                <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each0_btnradio2" value="1">1つ</label>
+                <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio3" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each0_btnradio3" value="2">2つ</label>
+                <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio4" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each0_btnradio4" value="3">3つ</label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="h6 mb-2 me-2">言語療法</label>
+            <div id="each1info" class="btn-group bg-white" role="group">
+                <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio1" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="each1_btnradio1" value="0">0つ</label>
+                <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each1_btnradio2" value="1">1つ</label>
+                <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio3" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each1_btnradio3" value="2">2つ</label>
+                <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio4" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each1_btnradio4" value="3">3つ</label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="h6 mb-2 me-2">作業療法</label>
+            <div id="each2info" class="btn-group bg-white" role="group">
+                <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio1" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="each2_btnradio1" value="0">0つ</label>
+                <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each2_btnradio2" value="1">1つ</label>
+                <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio3" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each2_btnradio3" value="2">2つ</label>
+                <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio4" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each2_btnradio4" value="3">3つ</label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="h6 mb-2 me-2">心理療法</label>
+            <div id="each3info" class="btn-group bg-white" role="group">
+                <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio1" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="each3_btnradio1" value="0">0つ</label>
+                <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each3_btnradio2" value="1">1つ</label>
+                <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio3" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each3_btnradio3" value="2">2つ</label>
+                <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio4" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each3_btnradio4" value="3">3つ</label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="h6 mb-2 me-2">自主トレーニング</label>
+            <div id="each4info" class="btn-group bg-white" role="group">
+                <input type="radio" class="btn-check" name="btnradio4" id="each4_btnradio1" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="each4_btnradio1" value="true">する</label>
+                <input type="radio" class="btn-check" name="btnradio4" id="each4_btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" for="each4_btnradio2" value="1">しない</label>
+            </div>
+        </div>
+
+        <div class="btn btn-primary w-100 mb-3 mt-2" id="reserveBtn">よやくする</div>
+        <div id="result" class="text-black"></div>
+    </div>
+
+
+    <!--スクロールのためのスペース-->
+    <div style="height: 100px;"></div>
+
+    <!--フッター-->
+    <div id="footer" class="container-fluid">
+      <div class="fixed-bottom bg-white m-auto"
+           style="border-radius: 26px; left: 0; right: 0; width: 95%; max-width: 600px; bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
+        <div class="row m-0 p-0" style="border-radius: 32px;">
+          <div class="col-3">
+            <div id="homebtn" class="text-center m-auto">
+              <a href="index.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-house-fill fw-bold" style="font-size: 2rem;"></i><br>
+              きょう</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="calbtn" class="text-center m-auto">
+              <a href="calender.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-calendar2-week fw-bold" style="font-size: 2rem;"></i><br>
+              きろく</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="explainbtn" class="text-center m-auto">
+              <a href="reserve.html" class="btn btn-link text-primary text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-clipboard-plus fw-bold" style="font-size: 2rem;"></i><br>
+              よやく</a>
+            </div>
+          </div>
+          <div class="col-3">
+            <div id="settingbtn" class="text-center m-auto">
+              <a href="setting.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+              <i class="bi bi-gear-fill fw-bold" style="font-size: 2rem;"></i><br>
+              設定</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height: 200px;"></div>
+
+    <script>
+        // 予約ボタンがクリックされたとき、each0infoの選択された値を取得して表示
+        document.getElementById('reserveBtn').addEventListener('click', function() {
+            const date = document.getElementById('date').value;
+            const each0info = document.querySelector('input[name="btnradio0"]:checked').nextElementSibling.innerText;
+            const each1info = document.querySelector('input[name="btnradio1"]:checked').nextElementSibling.innerText;
+            const each2info = document.querySelector('input[name="btnradio2"]:checked').nextElementSibling.innerText;
+            const each3info = document.querySelector('input[name="btnradio3"]:checked').nextElementSibling.innerText;
+            const each4info = document.querySelector('input[name="btnradio4"]:checked').nextElementSibling.innerText;
+
+            let resultText = `予約日: ${date}<br>`;
+            resultText += `理学療法: ${each0info}<br>`;
+            resultText += `言語療法: ${each1info}<br>`; 
+            resultText += `作業療法: ${each2info}<br>`;
+            resultText += `心理療法: ${each3info}<br>`;
+            resultText += `自主トレーニング: ${each4info}<br>`;
+            
+
+            document.getElementById('result').innerHTML = resultText;
+        });
+    </script>
+  </body>
+</html>

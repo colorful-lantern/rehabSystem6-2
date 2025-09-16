@@ -28,6 +28,9 @@ calender_2.html
 0701-rehabSystem-main/
 before/
 
+# flatpickr（使用しないため）
+flatpickr/
+
 # QRコード（機密情報含む可能性）
 github_qrcode/
 
