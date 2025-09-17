@@ -25,18 +25,38 @@
     <!--予約フォーム、予約する日付・取り組むリハビリの種類と個数-->
     <div class="ms-3 me-3 mt-1">
         <div class="h5 mb-3">よやくする</div>
-        <div class="mb-3">
-        <label class="form-label h6" for="date">よやくする日</label>
-        <input type="date" class="form-control" id="date" placeholder="日付を選択" />
+        <div class="mb-4">
+          <label class="form-label h6" for="date"><i class="bi bi-calendar me-2"></i>よやくする日</label>
+          <input type="date" class="form-control mb-2" id="date" placeholder="日付を選択" style="display:block;" />
+          <div id="dateError" class="text-danger mb-2 fw-bold" style="display:none;"></div>
+          <!-- 2行2列のボタン配置 -->
+          <div class="container mb-2">
+            <div class="row mb-2">
+              <div class="col-6 d-grid">
+                <button type="button" class="btn btn-outline-primary rounded date-select-btn bg-white" id="todayBtn">きょう</button>
+              </div>
+              <div class="col-6 d-grid">
+                <button type="button" class="btn btn-outline-primary rounded date-select-btn bg-white" id="tomorrowBtn">あす</button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 d-grid">
+                <button type="button" class="btn btn-outline-primary rounded date-select-btn bg-white" id="dayAfterTomorrowBtn">あさって</button>
+              </div>
+              <div class="col-6 d-grid">
+                <button type="button" class="btn btn-outline-primary rounded date-select-btn bg-white" id="otherBtn">そのほか</button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="h6">取り組むリハビリ</div>
+        <div class="h6"><i class="bi bi-check-square-fill me-2"></i>取り組むリハビリ</div>
 
         <div class="mb-3">
             <label class="h6 mb-2 me-2">理学療法</label>
             <div id="each0info" class="btn-group bg-white" role="group">
                 <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio1" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="each0_btnradio1" value="0">0つ</label>
+                <label class="btn btn-outline-primary" for="each0_btnradio1" value="0">しない</label>
                 <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio2" autocomplete="off">
                 <label class="btn btn-outline-primary" for="each0_btnradio2" value="1">1つ</label>
                 <input type="radio" class="btn-check" name="btnradio0" id="each0_btnradio3" autocomplete="off">
@@ -50,7 +70,7 @@
             <label class="h6 mb-2 me-2">言語療法</label>
             <div id="each1info" class="btn-group bg-white" role="group">
                 <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio1" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="each1_btnradio1" value="0">0つ</label>
+                <label class="btn btn-outline-primary" for="each1_btnradio1" value="0">しない</label>
                 <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio2" autocomplete="off">
                 <label class="btn btn-outline-primary" for="each1_btnradio2" value="1">1つ</label>
                 <input type="radio" class="btn-check" name="btnradio1" id="each1_btnradio3" autocomplete="off">
@@ -64,7 +84,7 @@
             <label class="h6 mb-2 me-2">作業療法</label>
             <div id="each2info" class="btn-group bg-white" role="group">
                 <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio1" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="each2_btnradio1" value="0">0つ</label>
+                <label class="btn btn-outline-primary" for="each2_btnradio1" value="0">しない</label>
                 <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio2" autocomplete="off">
                 <label class="btn btn-outline-primary" for="each2_btnradio2" value="1">1つ</label>
                 <input type="radio" class="btn-check" name="btnradio2" id="each2_btnradio3" autocomplete="off">
@@ -78,7 +98,7 @@
             <label class="h6 mb-2 me-2">心理療法</label>
             <div id="each3info" class="btn-group bg-white" role="group">
                 <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio1" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="each3_btnradio1" value="0">0つ</label>
+                <label class="btn btn-outline-primary" for="each3_btnradio1" value="0">しない</label>
                 <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio2" autocomplete="off">
                 <label class="btn btn-outline-primary" for="each3_btnradio2" value="1">1つ</label>
                 <input type="radio" class="btn-check" name="btnradio3" id="each3_btnradio3" autocomplete="off">
@@ -92,9 +112,9 @@
             <label class="h6 mb-2 me-2">自主トレーニング</label>
             <div id="each4info" class="btn-group bg-white" role="group">
                 <input type="radio" class="btn-check" name="btnradio4" id="each4_btnradio1" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="each4_btnradio1" value="true">する</label>
+                <label class="btn btn-outline-primary" for="each4_btnradio1" value="false">しない</label>
                 <input type="radio" class="btn-check" name="btnradio4" id="each4_btnradio2" autocomplete="off">
-                <label class="btn btn-outline-primary" for="each4_btnradio2" value="1">しない</label>
+                <label class="btn btn-outline-primary" for="each4_btnradio2" value="1">する</label>
             </div>
         </div>
 
@@ -144,26 +164,113 @@
     </div>
     <div style="height: 200px;"></div>
 
+    <!-- モーダル -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel">予約内容の確認</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body" id="modalBody">
+            <!-- 予約内容がここに表示されます -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
-        // 予約ボタンがクリックされたとき、each0infoの選択された値を取得して表示
         document.getElementById('reserveBtn').addEventListener('click', function() {
             const date = document.getElementById('date').value;
+            const dateError = document.getElementById('dateError');
+            const dateInput = document.getElementById('date');
+            dateError.style.display = 'none';
+            dateError.innerText = '';
+
+            if (!date) {
+                dateError.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1" style="font-size:1em; vertical-align:middle;"></i>日付を入力してください';
+                dateError.style.display = 'block';
+                dateInput.focus(); // フォーカスを当てる
+                return;
+            }
+
             const each0info = document.querySelector('input[name="btnradio0"]:checked').nextElementSibling.innerText;
             const each1info = document.querySelector('input[name="btnradio1"]:checked').nextElementSibling.innerText;
             const each2info = document.querySelector('input[name="btnradio2"]:checked').nextElementSibling.innerText;
             const each3info = document.querySelector('input[name="btnradio3"]:checked').nextElementSibling.innerText;
             const each4info = document.querySelector('input[name="btnradio4"]:checked').nextElementSibling.innerText;
 
-            let resultText = `予約日: ${date}<br>`;
-            resultText += `理学療法: ${each0info}<br>`;
-            resultText += `言語療法: ${each1info}<br>`; 
-            resultText += `作業療法: ${each2info}<br>`;
-            resultText += `心理療法: ${each3info}<br>`;
-            resultText += `自主トレーニング: ${each4info}<br>`;
-            
+            let resultText = `<div class="mb-2"><div class="h6">予約日</div>${date}</div>`;
+            resultText += `<div class="h6">リハビリ内容</div>`;
+            resultText += `<div>理学療法: ${each0info}</div>`;
+            resultText += `<div>言語療法: ${each1info}</div>`;
+            resultText += `<div>作業療法: ${each2info}</div>`;
+            resultText += `<div>心理療法: ${each3info}</div>`;
+            resultText += `<div>自主トレーニング: ${each4info}</div>`;
 
-            document.getElementById('result').innerHTML = resultText;
+            // モーダルに内容を表示
+            document.getElementById('modalBody').innerHTML = resultText;
+            // モーダル表示
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            confirmModal.show();
+
+            // #resultには何も表示しない
+            document.getElementById('result').innerHTML = '';
         });
+
+        // 日付選択ボタンの選択状態管理と日付自動入力
+        const dateInput = document.getElementById('date');
+        const btns = [
+          document.getElementById('todayBtn'),
+          document.getElementById('tomorrowBtn'),
+          document.getElementById('dayAfterTomorrowBtn'),
+          document.getElementById('otherBtn')
+        ];
+
+        function formatDate(date) {
+          // yyyy-mm-dd形式に変換
+          return date.toISOString().split('T')[0];
+        }
+
+        btns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            // 全ボタンをoutline-primaryに戻す
+            btns.forEach(b => {
+              b.classList.remove('btn-primary');
+              b.classList.add('btn-outline-primary');
+              b.classList.add('bg-white');
+            });
+            // 押したボタンだけprimaryに
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.remove('bg-white');
+            btn.classList.add('btn-primary');
+
+            // 日付入力フィールドは常に表示（display:blockのまま）
+
+            // 日付自動入力
+            if (btn.id === 'todayBtn') {
+              const today = new Date();
+              dateInput.value = formatDate(today);
+            } else if (btn.id === 'tomorrowBtn') {
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              dateInput.value = formatDate(tomorrow);
+            } else if (btn.id === 'dayAfterTomorrowBtn') {
+              const dayAfterTomorrow = new Date();
+              dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+              dateInput.value = formatDate(dayAfterTomorrow);
+            } else if (btn.id === 'otherBtn') {
+              dateInput.value = '';
+              dateInput.focus(); // カレンダーを表示
+            }
+          });
+        });
+
+        // ページロード時にinputを表示したままにする（display:blockはHTML側で設定済み）
     </script>
   </body>
 </html>
