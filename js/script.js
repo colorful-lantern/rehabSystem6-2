@@ -613,10 +613,10 @@ function loadCheckboxStates() {
         numberOfClass = cnt;
         localStorage.setItem('numberofClass', numberOfClass);
     }else{
-        if (!confirm('OKを押して、次の画面で設定を行います。\nはじめてではない方は、キャンセルを押してください。')) {
+        if (!confirm('OKを押して、次の画面で予約を行います\nはじめてではない方は、キャンセルを押してください。')) {
             alert('いつもと違うブラウザーでアクセスしている可能性があります。いつもと同じブラウザーでアクセスしてください。');
         }
-        location.href = 'setting.html';
+        location.href = 'reserve.html';
         return;
     }
 }
@@ -2268,6 +2268,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // **チカチカ防止: 表示状態をリセット**
     DisplayState.reset();
     DisplayState.isInitializing = true;
+    
+    // 予約システム実装に伴うコード
     
     // **フェーズ4: 最適化された初期化プロセス**
     
