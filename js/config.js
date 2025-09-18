@@ -1,6 +1,6 @@
 // last updated 2025.6.26
 // 各リハビリのランダムIDを定義
-const REHAB_IDS = {
+window.REHAB_IDS = {
     0: 'each0',    // 理学療法用
     1: 'each1',    // 言語療法用
     2: 'each2',    // 作業療法用
@@ -9,7 +9,7 @@ const REHAB_IDS = {
 };
 
 // 逆引き用マッピング（ランダムIDから番号を取得）
-const REHAB_ID_TO_INDEX = {};
+window.REHAB_ID_TO_INDEX = {};
 Object.keys(REHAB_IDS).forEach(index => {
     REHAB_ID_TO_INDEX[REHAB_IDS[index]] = parseInt(index);
 });
@@ -24,7 +24,7 @@ function getIndexFromRehabId(rehabId) {
 }
 
 // 自主トレーニング設定
-const SELF_TRAINING_CONFIG = {
+window.SELF_TRAINING_CONFIG = {
     // 自主トレーニングをポイント計算に含めるかどうか
     INCLUDE_IN_POINTS: false, // 後で変更可能
     
@@ -43,7 +43,7 @@ const SELF_TRAINING_CONFIG = {
 };
 
 // 自主トレーニングデータ管理クラス
-const SelfTrainingManager = {
+window.SelfTrainingManager = {
     // テキストデータ（90日で削除）
     TEXT_PREFIX: 'selftext_',
     
@@ -162,7 +162,7 @@ const SelfTrainingManager = {
 };
 
 // 自主トレーニング設定管理クラス
-const SelfTrainingSettings = {
+window.SelfTrainingSettings = {
     SETTINGS_KEY: 'selfTrainingSettings',
     
     // ポイント計算への包含設定を変更
@@ -216,7 +216,7 @@ const SelfTrainingSettings = {
 };
 
 // 休日管理クラス（永年保存対応）
-const RestDayManager = {
+window.RestDayManager = {
     // 月別キーを生成
     getMonthKey: function(year, month) {
         return `rest_${year}_${month.toString().padStart(2, '0')}`;

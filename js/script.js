@@ -5,11 +5,11 @@
 // 2025/06/25 update -- you can delete the rehabilitation record by URL parameter each0~3=false
 
 // grobal variables
-var numberOfClass = 0;
-var nowClass = 0;
+window.numberOfClass = 0;
+window.nowClass = 0;
 
 // **チカチカ防止: 表示状態管理フラグ**
-const DisplayState = {
+window.DisplayState = {
     consecutiveMessageShown: false,
     milestoneMessageShown: false,
     isInitializing: false,
@@ -22,7 +22,7 @@ const DisplayState = {
 };
 
 // **フェーズ4: パフォーマンス最適化 - LocalStorageキャッシュ**
-const StorageCache = {
+window.StorageCache = {
     cache: new Map(),
     expiryTime: 5 * 60 * 1000, // 5分間のキャッシュ
     
@@ -58,7 +58,7 @@ const StorageCache = {
 };
 
 // **カウンター管理機能（URLパラメータ処理より前に定義）**
-const RehabCounterManager = {
+window.RehabCounterManager = {
     // カウンターを取得（デフォルト0）
     getCount: function(rehabIndex) {
         const countKey = `each${rehabIndex}_count`;
@@ -487,7 +487,7 @@ function saveTrueCountToLocalStorage() {
 saveTrueCountToLocalStorage();
 
 // **新機能: カウンターシステムのテスト機能**
-const CounterSystemTester = {
+window.CounterSystemTester = {
     // 全体テストを実行
     runAllTests: function() {
         console.log('=== カウンターシステム全体テスト開始 ===');
@@ -772,6 +772,13 @@ function showRestDayMessage() {
         if (existingRestMessage) {
             existingRestMessage.remove();
         }
+
+        // 今日の日付をyyyy-mm-dd形式で取得
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
         
         const restMessageHTML = `
             <div id="rest-day-message" class="p-3 mb-4 text-center" 
@@ -786,8 +793,8 @@ function showRestDayMessage() {
                         <span style="font-size: 1.4rem; font-weight: bold; color: #6f42c1;">今日はお休みです</span>
                     </div>
                     <div class="mt-3">
-                        <a href="rest_calendar.html" class="btn btn-outline-primary w-75 text-center" style="font-size: 1.1rem; border-radius: 12px; padding: 0.6em 0; border-color: #6f42c1; color: #6f42c1;">
-                            <i class="bi bi-calendar-week"></i> 休みの日を設定する
+                        <a href="reserve.html?date=${todayStr}#dayselectCard" class="btn btn-outline-primary w-75 text-center" style="font-size: 1.1rem; border-radius: 12px; padding: 0.6em 0; border-color: #6f42c1; color: #6f42c1;">
+                            <i class="bi bi-calendar-week"></i> 予約を変更する
                         </a>
                     </div>
                 </div>

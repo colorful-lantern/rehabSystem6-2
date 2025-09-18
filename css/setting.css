@@ -1,0 +1,66 @@
+html, body {
+        background-color: #c2e2ed;
+        /* font-size: 18px; */
+      }
+      /* explain.htmlのカード幅に合わせる */
+      .select-box {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        margin-left: auto;
+        margin-right: auto;
+        width: 24rem;
+        max-width: 90%;
+      }
+      .select-box h4 {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .form-check {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem; /* チェックボックス間を詰める */
+        min-height: 2.2rem;
+      }
+      .form-check-input {
+        width: 1.3em;   /* 以前は2em。小さめに調整 */
+        height: 1.3em;  /* 以前は2em。小さめに調整 */
+        margin-top: 0.1em;
+        margin-right: 0.4em;
+        margin-left: 1em;
+        cursor: pointer;
+        accent-color: #0d6efd; /* チェックボックスの色を目立たせる */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: box-shadow 0.2s;
+        border: gray 2px solid;
+      }
+      .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem #0d6efd33;
+      }
+      .form-check-label {
+        cursor: pointer;
+        padding-left: 0.2em;
+        user-select: none;
+        font-size: 1.15em;
+      }
+      .btn-primary {
+        font-size: 1.2rem;
+        padding: 0.4em 0;
+        border-radius: 12px;
+      }
+      .alert {
+        font-size: 1.1rem;
+        border-radius: 12px;
+      }
+      @media (max-width: 600px) {
+        .select-box {
+          padding: 1.2rem 0.5rem 1rem 0.5rem;
+          width: 100%;
+          min-width: unset;
+        }
+        .form-check {
+          font-size: 1.05rem;
+        }
+        .btn-primary {
+          font-size: 1.05rem;
+        }
+      }

@@ -1,0 +1,269 @@
+/*
+* カレンダーの配色設定を一括で管理するCSS変数
+* これらの変数の値を変更するだけで、カレンダー全体のテーマカラーを変更できます。
+*/
+:root {
+    /* 全体の背景色 */
+    --calendar-body-bg: #c2e2ed; /* ライトブルーグレー */
+
+    /* カレンダーコンテナの背景と影 */
+    --calendar-container-bg: #c2e2ed; /* ライトブルーグレー */
+    --calendar-container-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+
+    /* ナビゲーションボタンの色 */
+    --btn-primary-bg: #217ea9; /* 紫 */
+    --btn-primary-border: #217ea9;
+    --btn-primary-text: #ffffff;
+    --btn-primary-hover-bg: #006193; /* 暗めの紫 */
+    --btn-primary-hover-border: #006193;
+    --btn-disabled-bg: #e2e6ea; /* 無効ボタンの背景色 */
+    --btn-disabled-border: #dae0e5; /* 無効ボタンの枠線の色 */
+    --btn-disabled-text: #6c757d; /* 無効ボタンのテキスト色 */
+
+
+    /* ヘッダーの月/年テキストの色 */
+    --header-text-color: #212529; /* 暗めのテキスト */
+
+    /* グリッドとセルの境界線の色 */
+    --grid-border-color: #dee2e6; /* 薄いグレー */
+
+    /* 曜日ヘッダーの背景とテキストの色 */
+    --th-bg:#217ea9; /* 薄い青 */
+    --th-text: #ffffff; /* 暗めの青 */
+
+    /* 日付セルの背景とテキストの色 */
+    --td-bg: #9acfe0;
+    --td-text: #343a40; /* 暗めのテキスト */
+
+    /* 現在の月の日の背景色 */
+    --current-month-day-bg: #f2f9fb; /* 非常に薄いグレー */
+
+    /* 今日の日付の背景、境界線、テキストの色 */
+    --today-bg: #fddf50; /* 薄い青 */
+    --today-border: #fddf50; /* 青 */
+    --today-text: #000000; /* 暗い青 */
+
+    /* 空のセルの背景色とテキストの色 (前月/次月の日付) */
+    --empty-cell-bg: #e9ecef; /* 薄いグレー */
+    --empty-cell-text: #6c757d; /* ミュートされたテキスト色 (Bootstrapのtext-mutedに合わせる) */
+
+    /* カレンダー日付の文字サイズを一括で指定する変数 */
+    --calendar-date-font-size: 1.25rem;
+}
+
+html, body {
+    /* 最後までスクロールできるようにする */
+    overflow: auto;
+    height: 110%;     /* 高さを100%に */
+}
+body {
+    /* font-family: "Inter", sans-serif; */
+    background-color: var(--calendar-body-bg);
+    margin: 0;
+    width: 100%;
+    /* min-height: 100vh; ← 不要なら削除 */
+}
+.calendar-container {
+    background-color: var(--calendar-container-bg);
+    padding: 0;
+    width: 100%; /* ← 100vwから100%に変更 */
+    /* min-height: 50vh; */
+    display: flex;
+    flex-direction: column;
+}
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.calendar-header .btn {
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+    color: var(--btn-primary-text);
+    padding: 0.625rem 0.9375rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    border: none;
+    outline: none;
+}
+.calendar-header .btn:hover {
+    background-color: var(--btn-primary-hover-bg);
+    border-color: var(--btn-primary-hover-border);
+}
+/* 無効化されたボタンのスタイル */
+.calendar-header .btn:disabled {
+    background-color: var(--btn-disabled-bg);
+    border-color: var(--btn-disabled-border);
+    color: var(--btn-disabled-text);
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+.calendar-header h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--header-text-color);
+}
+.calendar-table-wrapper {
+    overflow-x: auto; /* 横スクロールを許可 */
+}
+.calendar-grid {
+    width: 100%;
+    border-collapse: collapse;
+}
+.calendar-grid th, .calendar-grid td {
+    border: 1px solid var(--grid-border-color);
+    padding: 0.5rem;
+    text-align: center;
+    vertical-align: top;
+    height: 120px; /* ← 縦幅を広く */
+}
+.calendar-grid thead th {
+    height: 28px !important;
+    min-height: 0 !important;
+    max-height: 28px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    line-height: 1.1 !important;
+    vertical-align: middle !important;
+    color: var(--th-text);
+    background-color: var(--th-bg);
+    font-weight: 600;
+    font-size: 1rem; /* ヘッダーのフォントサイズ */
+}
+.calendar-grid td {
+    background-color: var(--td-bg);
+    color: var(--td-text);
+    position: relative;
+}
+/* クリック可能な日付セルにカーソルを合わせるとポインタに変わる */
+.calendar-grid td.current-month {
+    cursor: pointer;
+}
+.calendar-grid td .date-number {
+    position: absolute;
+    top: 0.3125rem;
+    left: 0.5rem;
+    font-size: var(--calendar-date-font-size); /* ←ここを変更 */
+    font-weight: 500;
+}
+.calendar-grid td.current-month {
+    background-color: var(--current-month-day-bg);
+}
+.calendar-grid td.today {
+    background-color: var(--today-bg);
+    border: 2px solid var(--today-border);
+    font-weight: bold;
+    color: var(--today-text);
+}
+.calendar-grid td.empty {
+    background-color: var(--empty-cell-bg);
+    opacity: 0.6;
+}
+.calendar-grid td.empty .date-number {
+    color: var(--empty-cell-text); /* Ensure muted text uses the variable */
+}
+td .event-content {
+    font-size: 1.5rem !important; /* ← 文字サイズを大きく */
+    font-weight: bold;
+}
+.bi.bi-check-lg {
+    color: #1d9539 !important; /* Bootstrapの緑色 */
+}
+#iconlegendstatus {
+    background: rgba(255, 255, 255, 1);
+    border-radius: 16px 16px 16px 16px;
+    padding-bottom: 0.75rem; /* 12px → 0.75rem */
+}
+
+/* Bootstrap's responsive utilities handle most of this, but specific overrides might be needed */
+@media (max-width: 576px) {
+    .calendar-container {
+        padding: 15px;
+    }
+    .calendar-header h2 {
+        font-size: 1.25rem;
+    }
+    .calendar-header .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    .calendar-grid th, .calendar-grid td {
+        padding: 3px;
+        height: 80px; /* ← モバイル時も広めに */
+    }
+    .calendar-grid td .date-number {
+        font-size: var(--calendar-date-font-size); /* ←ここも変数を使う */
+        top: 2px;
+        left: 4px;
+    }
+    .event-content {
+        font-size: 1.1rem !important; /* モバイル時も大きめに */
+    }
+}
+
+/* ダッシュボードのスタイル */
+.dashboard-container {
+    background-color: transparent;
+    padding: 0;
+}
+
+.dashboard-section {
+    background-color: transparent;
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.dashboard-header {
+    margin-bottom: 12px;
+}
+
+.dashboard-card {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 12px 8px;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dashboard-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.dashboard-value {
+    font-size: 2.0rem;
+    font-weight: bold;
+    color: #212529;
+    line-height: 1.2;
+    margin: 4px 0;
+}
+
+.dashboard-rank {
+    font-size: 1.4rem;
+}
+
+.dashboard-unit {
+    font-size: 0.8rem;
+    color: #868e96;
+    margin-top: 4px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 576px) {
+    .dashboard-value {
+        font-size: 1.6rem;
+    }
+    .dashboard-rank {
+        font-size: 1.2rem;
+    }
+}
