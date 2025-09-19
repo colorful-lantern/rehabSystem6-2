@@ -89,9 +89,33 @@ window.RehabCounterManager = {
         localStorage.removeItem(countKey);
     },
     
-    // 指定リハビリが実施済みかチェック（1回以上で完了扱い）
+    // 指定リハビリが実施済みかチェック（予約個数 = 実行個数で完了扱い）
     isCompleted: function(rehabIndex) {
-        return this.getCount(rehabIndex) > 0;
+        const actualCount = this.getCount(rehabIndex);
+        const reservedCount = this.getReservedCount(rehabIndex);
+        return actualCount >= reservedCount && reservedCount > 0;
+    },
+    
+    // 指定リハビリの予約個数を取得
+    getReservedCount: function(rehabIndex) {
+        const today = new Date().toISOString().split('T')[0];
+        const reserveKey = `reserve_${today}`;
+        const reserveValue = localStorage.getItem(reserveKey);
+        
+        if (!reserveValue) return 0;
+        
+        const items = reserveValue.split(',');
+        for (const item of items) {
+            const match = item.match(/^each(\d)=(\d+)$/);
+            if (match) {
+                const idx = parseInt(match[1], 10);
+                const val = parseInt(match[2], 10);
+                if (idx === rehabIndex) {
+                    return val;
+                }
+            }
+        }
+        return 0;
     },
     
     // すべてのカウンターをリセット（日付変更時用）
@@ -392,9 +416,10 @@ function migrateStatusData(statusValue) {
     }
 }
 
-// localstrageのkey(each0~3)のカウンター値に基づいて完了数を計算し、localstrageのkey=nmboftrueに保存する
+// localstrageのkey(each0~4)のカウンター値に基づいて取り組んだリハビリ個数の合計を計算し、localstrageのkey=nmboftrueに保存する
 function saveTrueCountToLocalStorage() {
-    let cnt = 0;
+    let completedTypeCount = 0; // 完了した種類数（既存ロジック用）
+    let totalRehabCount = 0; // 取り組んだリハビリの個数合計（新ロジック）
     let achievedStatus = [];
     
     // URLパラメータでeach0-3=trueのアクセスがあったかチェック
@@ -407,7 +432,8 @@ function saveTrueCountToLocalStorage() {
         }
     }
     
-    for (let i = 0; i <= 3; i++) {
+    // each0-4の全てを処理（自主リハビリのeach4も含む）
+    for (let i = 0; i <= 4; i++) {
         let key = `each${i}`;
         const key2 = `rehabilitation${i + 1}`;
         const value2 = localStorage.getItem(key2);
@@ -416,24 +442,58 @@ function saveTrueCountToLocalStorage() {
         if (value2 === 'true') {
             // カウンター方式で完了判定
             const isCompleted = RehabCounterManager.isCompleted(i);
-            const count = RehabCounterManager.getCount(i);
+            const actualCount = RehabCounterManager.getCount(i);
+            const reservedCount = RehabCounterManager.getReservedCount(i);
             
-            if (isCompleted) {
-                cnt++;
-                achievedStatus.push(`${key}=${count}`); // 実施回数を記録
+            
+            // 自主リハビリ（each4）の特別処理
+            if (i === 4) {
+                // 自主リハビリは selfrec_YYYY-MM-DD で記録状況を管理
+                const today = new Date().toISOString().split('T')[0];
+                const selfRecKey = `selfrec_${today}`;
+                const hasSelfRecord = localStorage.getItem(selfRecKey) === 'true';
+                
+                if (hasSelfRecord) {
+                    // 記録済みの場合は予約個数分を加算
+                    totalRehabCount += reservedCount;
+                    console.log(`${key} (自主リハビリ): recorded=true, reserved=${reservedCount}, added=${reservedCount}`);
+                    // 自主リハビリの完了扱い
+                    completedTypeCount++;
+                    achievedStatus.push(`${key}=${reservedCount}`);
+                } else {
+                    console.log(`${key} (自主リハビリ): recorded=false, added=0`);
+                    achievedStatus.push(`${key}=0`);
+                }
             } else {
-                achievedStatus.push(`${key}=0`); // 未実施は0
+                // 通常のリハビリ処理
+                // 完了種類数のカウント（既存ロジック用）
+                if (isCompleted) {
+                    completedTypeCount++;
+                }
+                
+                // 取り組んだ個数の計算（予約個数上限あり）
+                const countToAdd = Math.min(actualCount, reservedCount);
+                totalRehabCount += countToAdd;
+                
+                console.log(`${key}: actual=${actualCount}, reserved=${reservedCount}, added=${countToAdd}`);
+                
+                // 完了状況に関わらず実際の実行回数を記録
+                achievedStatus.push(`${key}=${actualCount}`);
             }
             
             // 旧形式との互換性維持（URLパラメータアクセス時の初期値設定）
             const oldValue = localStorage.getItem(key);
             if (oldValue === null && hasEachTrueParam && !isCompleted) {
-                achievedStatus[achievedStatus.length - 1] = `${key}=0`; // 明示的に0を設定
+                // 既に実際の count が記録されているので、ここでは何もしない
             }
         }
     }
-    localStorage.setItem('nmboftrue', cnt);
-    nowClass = cnt;
+    
+    // 新ロジック: 取り組んだリハビリの個数合計をnmboftrueに保存
+    localStorage.setItem('nmboftrue', totalRehabCount);
+    nowClass = totalRehabCount;
+    
+    console.log(`nmboftrue updated: completedTypes=${completedTypeCount}, totalRehabCount=${totalRehabCount}`);
 
     // 日付ごとの達成状況を保存（データが存在する場合のみ）
     // ステータス保存処理（改善版）
@@ -448,14 +508,14 @@ function saveTrueCountToLocalStorage() {
         }
     }
     
-    // numberofClassも更新
-    localStorage.setItem('numberofClass', totalActiveRehabilitations.toString());
+    // numberofClassはcheckReserve.jsで既に設定されているため、ここでは更新しない
+    // checkReserve.jsで予約個数の合計が正しく設定されているので、それを維持する
 
     // 取り組むリハビリが設定されている場合は必ずステータスを保存
     if (totalActiveRehabilitations > 0) {
         let statusValue = '';
         // 新ポイントシステム: 全完了時のみ1ポイント、未完了時は0ポイント
-        if (cnt === totalActiveRehabilitations && totalActiveRehabilitations > 0) {
+        if (completedTypeCount === totalActiveRehabilitations && totalActiveRehabilitations > 0) {
             statusValue = '1'; // 全完了で1ポイント
         } else {
             statusValue = '0'; // 未完了は0ポイント
@@ -470,7 +530,7 @@ function saveTrueCountToLocalStorage() {
         }
         
         localStorage.setItem(`status_${today}`, statusValue);
-        console.log(`ステータス保存: ${today} = ${statusValue} (完了:${cnt}/${totalActiveRehabilitations})`);
+        console.log(`ステータス保存: ${today} = ${statusValue} (完了種類:${completedTypeCount}/${totalActiveRehabilitations}, 合計実行:${totalRehabCount})`);
         
         // 連続記録キャッシュをクリア（再計算を促す）
         const cacheKey = `consecutive_cache_${today}`;
@@ -483,7 +543,30 @@ function saveTrueCountToLocalStorage() {
     } else {
         console.warn('リハビリが設定されていないため、ステータスは保存されません');
     }
+    
+    // プログレスバーの更新
+    updateProgressBar();
 }
+
+// プログレスバー更新関数
+function updateProgressBar() {
+    const container = document.getElementById('container');
+    if (container && typeof bar !== 'undefined' && bar) {
+        const animate = Math.min(nowClass / numberOfClass, 1);
+        console.log(`プログレスバー更新: ${nowClass}/${numberOfClass} = ${animate}`);
+        bar.animate(animate);
+        
+        // 達成時の紙吹雪アニメーション
+        if (nowClass >= numberOfClass && numberOfClass > 0) {
+            console.log('達成！紙吹雪アニメーション開始');
+            // 紙吹雪アニメーションがあれば実行
+            if (typeof triggerConfetti === 'function') {
+                triggerConfetti();
+            }
+        }
+    }
+}
+
 saveTrueCountToLocalStorage();
 
 // **新機能: カウンターシステムのテスト機能**
@@ -610,8 +693,9 @@ function loadCheckboxStates() {
         }
     }
     if(cnt>0){
-        numberOfClass = cnt;
-        localStorage.setItem('numberofClass', numberOfClass);
+        // numberOfClassはcheckReserve.jsで予約個数の合計として既に設定されているため、
+        // ここでは種類数での上書きは行わない
+        numberOfClass = parseInt(localStorage.getItem('numberofClass') || cnt);
     }else{
         if (!confirm('OKを押して、次の画面で予約を行います\nはじめてではない方は、キャンセルを押してください。')) {
             alert('いつもと違うブラウザーでアクセスしている可能性があります。いつもと同じブラウザーでアクセスしてください。');
@@ -637,6 +721,34 @@ if (location.search.includes('clear=true')) {
 
 // Display icons based on local storage values for each0 to each3 (カウンター方式対応)
 function displayIconsBasedOnLocalStorage() {
+    // 今日の予約データを取得する関数
+    function getTodayReserveData() {
+        const today = new Date().toISOString().split('T')[0];
+        const reserveKey = `reserve_${today}`;
+        const reserveValue = localStorage.getItem(reserveKey);
+        
+        const reserveCounts = [0, 0, 0, 0, 0]; // each0-4の予約個数
+        
+        if (reserveValue) {
+            const items = reserveValue.split(',');
+            items.forEach(item => {
+                const match = item.match(/^each(\d)=(\d+)$/);
+                if (match) {
+                    const idx = parseInt(match[1], 10);
+                    const val = parseInt(match[2], 10);
+                    if (idx >= 0 && idx <= 4) {
+                        reserveCounts[idx] = val;
+                    }
+                }
+            });
+        }
+        
+        return reserveCounts;
+    }
+    
+    const reserveCounts = getTodayReserveData();
+    console.log('Today reserve data:', reserveCounts);
+    
     for (let i = 0; i <= 3; i++) {
         let key = `each${i}`;
         const element = document.getElementById(`each${i}`);
@@ -652,6 +764,10 @@ function displayIconsBasedOnLocalStorage() {
         // カウンター方式で完了判定
         const isCompleted = RehabCounterManager.isCompleted(i);
         const count = RehabCounterManager.getCount(i);
+        const reserveCount = RehabCounterManager.getReservedCount(i); // 新しいメソッドを使用
+        
+        // デバッグ情報出力
+        console.log(`each${i}: completed=${isCompleted}, actual=${count}, reserved=${reserveCount}`);
 
         // 要素をクリア
         element.innerHTML = '';
@@ -673,7 +789,7 @@ function displayIconsBasedOnLocalStorage() {
             // 背景色を設定
             element.style.backgroundColor = '#f0f0f0';
         } else if (isCompleted) {
-            // 完了済み（1回以上実施）
+            // 完了済み（予約個数 = 実行個数）
             const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             icon.setAttribute('class', 'bi bi-check-circle-fill');
             icon.setAttribute('fill', 'green');
@@ -686,9 +802,9 @@ function displayIconsBasedOnLocalStorage() {
             icon.style.color = 'green';
             element.appendChild(icon);
             
-            // 回数テキストを追加
+            // 回数テキストを追加（x個/y個形式）
             const countText = document.createElement('small');
-            countText.textContent = `${count}つ`;
+            countText.textContent = `${count}個/${reserveCount}個`;
             countText.style.color = 'green';
             countText.style.fontWeight = 'bold';
             countText.style.marginTop = '2px';
@@ -712,9 +828,9 @@ function displayIconsBasedOnLocalStorage() {
             icon.style.color = 'gray';
             element.appendChild(icon);
             
-            // 回数テキストを追加
+            // 回数テキストを追加（x個/y個形式）
             const countText = document.createElement('small');
-            countText.textContent = '0つ';
+            countText.textContent = `${count}個/${reserveCount}個`;
             countText.style.color = 'gray';
             countText.style.fontWeight = 'bold';
             countText.style.marginTop = '2px';
@@ -1442,7 +1558,7 @@ function createProgressBar(container, color, duration, fromColor, toColor, strok
                     }
                     
                     // あと○つのみ表示
-                    bottomText = '<div class="progress-bottom-text" style="font-size:2rem;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + remainingTasks + '</b><div style="font-size:1.2rem; display:inline;">種類</div></div>';
+                    bottomText = '<div class="progress-bottom-text" style="font-size:2rem;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + remainingTasks + '</b><div style="font-size:1.2rem; display:inline;">つ</div></div>';
                 }
                 
                 // メインテキストには現在の進捗を表示
@@ -1527,7 +1643,7 @@ function startBottomTextAnimation(circle, remainingTasks, totalDays) {
             // テキストを更新
             var bottomText;
             // あと○つのみ表示
-            bottomText = '<div class="progress-bottom-text" style="font-size:2rem; opacity:0;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + currentRemainingTasks + '</b><div style="font-size:1.2rem; display:inline;">種類</div></div>';
+            bottomText = '<div class="progress-bottom-text" style="font-size:2rem; opacity:0;">' + '<div style="font-size:1.2rem;">あと' + '<b style="font-size:1.8rem;">' + currentRemainingTasks + '</b><div style="font-size:1.2rem; display:inline;">つ</div></div>';
             
             circle.setText(
                 '<div style="height: 2rem; display: flex; align-items: center; justify-content: center; font-size:1.5rem;">きょう</div>' +

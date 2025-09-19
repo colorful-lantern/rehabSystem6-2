@@ -68,23 +68,26 @@
                         localStorage.setItem(key, 'false');
                         console.log(`Set ${key} = false (rest day)`);
                     }
-                    localStorage.setItem('numberofClass', '1'); // 休日なので1に設定してリダイレクトを防ぐ
+                    // 休日でも予約があった場合は合計個数を計算
+                    const totalReservations = rehabCounts.reduce((sum, count) => sum + count, 0);
+                    const finalCount = Math.max(1, totalReservations); // 最低1に設定してリダイレクトを防ぐ
+                    localStorage.setItem('numberofClass', finalCount.toString());
                     console.log('Set rehabilitation1 = true (rest day - prevent redirect)');
-                    console.log('Set numberofClass = 1 (rest day - prevent redirect)');
+                    console.log(`Set numberofClass = ${finalCount} (rest day - total reservations or minimum 1)`);
                 } else {
                     // 通常のリハビリ日処理
-                    let trueCount = 0;
+                    let totalReservations = 0;
                     for (let i = 0; i < 5; i++) {
                         const key = `rehabilitation${i+1}`;
                         const value = rehabCounts[i] > 0 ? 'true' : 'false';
                         localStorage.setItem(key, value);
-                        if (value === 'true') trueCount++;
-                        console.log(`Set ${key} = ${value}`);
+                        totalReservations += rehabCounts[i]; // 予約された個数を合計
+                        console.log(`Set ${key} = ${value} (count: ${rehabCounts[i]})`);
                     }
                     
-                    // numberofClassを更新
-                    localStorage.setItem('numberofClass', trueCount.toString());
-                    console.log(`Set numberofClass = ${trueCount}`);
+                    // numberofClassを予約したリハビリの個数の合計に更新
+                    localStorage.setItem('numberofClass', totalReservations.toString());
+                    console.log(`Set numberofClass = ${totalReservations} (total reservations)`);
                 }
                 
             } else {
