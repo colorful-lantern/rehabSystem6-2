@@ -2263,6 +2263,7 @@ function runIntegrationDiagnostics() {
 
 // 初期化とテスト実行
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('script.js-row2265-started');
     console.log('=== アプリケーション初期化開始 ===');
     
     // **チカチカ防止: 表示状態をリセット**
@@ -2430,6 +2431,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // **カウンターシステム初期化とテスト実行**
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('script.js-row2434-started');
     // 開発環境でのみテスト実行（本番環境では無効化）
     const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     
