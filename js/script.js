@@ -514,11 +514,17 @@ function saveTrueCountToLocalStorage() {
     // 取り組むリハビリが設定されている場合は必ずステータスを保存
     if (totalActiveRehabilitations > 0) {
         let statusValue = '';
-        // 新ポイントシステム: 全完了時のみ1ポイント、未完了時は0ポイント
-        if (completedTypeCount === totalActiveRehabilitations && totalActiveRehabilitations > 0) {
-            statusValue = '1'; // 全完了で1ポイント
+        
+        // 新ポイントシステム: 取り組んだ個数 = 予約個数で全達成
+        const numberOfClass = parseInt(localStorage.getItem('numberofClass') || '0');
+        const isFullyCompleted = totalRehabCount >= numberOfClass && numberOfClass > 0;
+        
+        if (isFullyCompleted) {
+            statusValue = '1'; // 全達成で1ポイント
+            console.log(`達成判定: ${totalRehabCount}/${numberOfClass} = 全達成！1ポイント獲得`);
         } else {
-            statusValue = '0'; // 未完了は0ポイント
+            statusValue = '0'; // 未達成は0ポイント
+            console.log(`達成判定: ${totalRehabCount}/${numberOfClass} = 未達成、0ポイント`);
         }
         
         // achievedStatusが空でも、取り組むリハビリがある場合はステータスを保存
@@ -530,7 +536,10 @@ function saveTrueCountToLocalStorage() {
         }
         
         localStorage.setItem(`status_${today}`, statusValue);
-        console.log(`ステータス保存: ${today} = ${statusValue} (完了種類:${completedTypeCount}/${totalActiveRehabilitations}, 合計実行:${totalRehabCount})`);
+        console.log(`ステータス保存: ${today} = ${statusValue} (完了種類:${completedTypeCount}/${totalActiveRehabilitations}, 合計実行:${totalRehabCount}/${numberOfClass})`);
+        
+        // totalrehabを再計算（全ステータスファイルから1ポイントの日数を合計）
+        updateTotalRehab();
         
         // 連続記録キャッシュをクリア（再計算を促す）
         const cacheKey = `consecutive_cache_${today}`;
@@ -565,6 +574,31 @@ function updateProgressBar() {
             }
         }
     }
+}
+
+// totalrehabを再計算する関数
+function updateTotalRehab() {
+    let totalPoints = 0;
+    
+    // localStorage内の全てのstatus_キーを検索
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('status_')) {
+            const statusValue = localStorage.getItem(key);
+            if (statusValue) {
+                // status値の先頭の数字（ポイント）を取得
+                const pointValue = parseInt(statusValue.split(',')[0], 10);
+                if (!isNaN(pointValue)) {
+                    totalPoints += pointValue;
+                }
+            }
+        }
+    }
+    
+    localStorage.setItem('totalrehab', totalPoints.toString());
+    console.log(`totalrehab更新: ${totalPoints}ポイント`);
+    
+    return totalPoints;
 }
 
 saveTrueCountToLocalStorage();

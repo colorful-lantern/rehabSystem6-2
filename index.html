@@ -144,6 +144,8 @@
       </div>
     </nav>
 
+    <div class="" role="alert" id="reloadAlert"></div>
+
     <div id="generalstatus" class="m-2 text-center">
       <div id="container" class="my-4 mx-auto">
         <!-- プログレスバーの円の中で紙吹雪を舞わせるエリア -->
@@ -434,11 +436,16 @@
     <script src="js/progressbar.js"></script>
     <script src="js/js_index/checkReserve.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/js_index/checkURL.js"></script>
     <!-- <script src="js/self_training_test.js"></script> -->
     
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // アクセスした日付をローカルストレージのkey=lastAccessTimeにtoString()で保存
+            const today = new Date();
+            localStorage.setItem('lastAccessTime', today.getTime());
+
             const confettiContainer = document.getElementById('cracker-animation-area-card');
             const generalStatus = document.getElementById('generalstatus');
             let confettiIntervalId = null;
@@ -608,28 +615,23 @@
                         selfTrainingModal.hide();
                         updateSelfTrainingButton();
                         
-                        // 成功メッセージ
-                        const successAlert = document.createElement('div');
-                        successAlert.className = 'alert alert-warning alert-dismissible fade show position-fixed';
-                        successAlert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
-                        successAlert.innerHTML = `
-                            <i class="bi bi-trash-fill me-2"></i>
-                            自主トレーニング記録を削除しました
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.body.appendChild(successAlert);
-                        
                         // 3秒後に自動削除
                         setTimeout(() => {
                             if (successAlert.parentNode) {
                                 successAlert.remove();
                             }
                         }, 3000);
+
+                        // index.html?each4=deleteにリダイレクト
+                        window.location.href = 'index.html?each4=delete';
                         
-                        // プログレスバーや統計の更新をトリガー
-                        if (typeof saveTrueCountToLocalStorage === 'function') {
-                            saveTrueCountToLocalStorage();
-                        }
+                        // // プログレスバーや統計の更新をトリガー
+                        // if (typeof saveTrueCountToLocalStorage === 'function') {
+                        //     saveTrueCountToLocalStorage();
+                        // }
+
+
+
                     } else {
                         alert('記録の削除に失敗しました。もう一度お試しください。');
                     }
