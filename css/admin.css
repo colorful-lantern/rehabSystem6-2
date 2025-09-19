@@ -14,6 +14,14 @@
             min-height: 70vh;
         }
 
+        #cationContent {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem;
+            min-height: 100px;
+        }
+
         .admin-data-item {
             background: #f8f9fa;
             border-radius: 8px;
