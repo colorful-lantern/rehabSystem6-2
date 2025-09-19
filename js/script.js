@@ -145,6 +145,12 @@ saveQueryParamsToLocalStorage();
 
 // URLパラメータのeach0-4=trueでリハビリデータを設定
 (function handleEachParamsFromUrl() {
+    // 短時間アクセスが検出された場合は処理を停止
+    if (window.shortTimeAccessDetected) {
+        console.log('Short time access detected - skipping URL parameter processing');
+        return;
+    }
+    
     const params = new URLSearchParams(location.search);
     
     for (let i = 0; i <= 4; i++) { // 0-4に拡張（自主トレーニング対応）

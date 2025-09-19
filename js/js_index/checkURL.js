@@ -46,5 +46,9 @@
     if (alertShown) {
         const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
         window.history.replaceState({}, document.title, newUrl);
+        
+        // 短時間アクセスが検出された場合は、後続のスクリプト処理を停止
+        window.shortTimeAccessDetected = true;
+        console.log('Short time access detected - flagged for other scripts');
     }
 })();
