@@ -1,6 +1,42 @@
 // 現在モーダルに表示されている日付を保持する変数
 let currentModalDate = null;
 
+// フッターのボタンを更新する関数
+function updateModalFooter(date) {
+  const restDayBtn = document.getElementById('restDayBtn');
+  
+  console.log('updateModalFooter called with date:', date);
+  console.log('restDayBtn element:', restDayBtn);
+  
+  if (restDayBtn) {
+    // 休みの日かどうかをチェック
+    const isRestDay = RestDayManager && typeof RestDayManager.isRestDay === 'function' && RestDayManager.isRestDay(date);
+    const restDayBtnText = isRestDay ? 'お休みの日を解除する' : 'お休みの日にする';
+    const restDayBtnIcon = isRestDay ? 'bi-sun' : 'bi-moon';
+    
+    console.log('isRestDay:', isRestDay);
+    console.log('Setting button text to:', restDayBtnText);
+    
+    // ボタンのテキストとアイコンを更新
+    restDayBtn.innerHTML = `<i class="bi ${restDayBtnIcon}"></i> ${restDayBtnText}`;
+    restDayBtn.setAttribute('data-date', date);
+    restDayBtn.setAttribute('data-is-rest', isRestDay);
+
+    // ボタンを押したときのリンク先を設定
+    // reserve.html?date=YYYY-MM-DD&rest=true
+    // falseのときはrestパラメータを付与しない
+    const restParam = isRestDay ? '' : '&rest=true';
+    restDayBtn.onclick = function(event) {
+      console.log('Button clicked! Navigating to:', `reserve.html?date=${date}${restParam}`);
+      window.location.href = `reserve.html?date=${date}${restParam}`;
+    };
+    
+    console.log('Event handler set for button');
+  } else {
+    console.log('restDayBtn element not found!');
+  }
+}
+
 // 日付ナビゲーション関数
 function navigateModalDate(direction) {
   if (!currentModalDate) return;
@@ -36,28 +72,30 @@ function updateModalContent(date) {
         <p class="fs-4">${formattedDate}はお休みです</p>
       </div>
     `;
-    return;
+  } else {
+    // リハビリデータを取得して表示
+    const key = `status_${date}`;
+    const value = localStorage.getItem(key);
+    if (value !== null) {
+      // 既存のロジックを再利用
+      displayRehabilitationData(value, date, contentDiv, formattedDate);
+    } else {
+      // データがない場合
+      const today = new Date();
+      const selectedDate = new Date(date);
+      today.setHours(0,0,0,0);
+      selectedDate.setHours(0,0,0,0);
+      
+      contentDiv.innerHTML = `
+        <div class="text-center">
+          <p class="fs-5">${formattedDate}の記録はありません</p>
+        </div>
+      `;
+    }
   }
   
-  // リハビリデータを取得して表示
-  const key = `status_${date}`;
-  const value = localStorage.getItem(key);
-  if (value !== null) {
-    // 既存のロジックを再利用
-    displayRehabilitationData(value, date, contentDiv, formattedDate);
-  } else {
-    // データがない場合
-    const today = new Date();
-    const selectedDate = new Date(date);
-    today.setHours(0,0,0,0);
-    selectedDate.setHours(0,0,0,0);
-    
-    contentDiv.innerHTML = `
-      <div class="text-center">
-        <p class="fs-5">${formattedDate}の記録はありません</p>
-      </div>
-    `;
-  }
+  // 常にフッターのボタンを更新
+  updateModalFooter(date);
 }
 
 // リハビリデータを表示する関数（既存のロジックを分離）
@@ -257,6 +295,9 @@ function displayRehabilitationData(value, date, contentDiv, formattedDate) {
   }
 
   contentDiv.innerHTML = `<p>${mainText}</p>${achievedRow}${selfTrainingSection}${reserveBtnHtml}`;
+
+  // フッターのボタンを更新
+  updateModalFooter(date);
 }
 
 // モーダルが表示される直前に詳細データをセット
@@ -273,6 +314,17 @@ dateDetailModal.addEventListener('show.bs.modal', function (event) {
   } else {
     const contentDiv = document.getElementById('dateDetailContent');
     contentDiv.innerHTML = `<p>日付が選択されていません。</p>`;
+  }
+});
+
+// 予約ボタンのクリックイベント（body内のボタン用）
+document.getElementById('dateDetailContent').addEventListener('click', function(event) {
+  if (event.target.id === 'reserveBtn' || event.target.closest('#reserveBtn')) {
+    const btn = event.target.closest('#reserveBtn') || event.target;
+    const date = btn.getAttribute('data-date');
+    if (date) {
+      window.location.href = `reserve.html?date=${date}`;
+    }
   }
 });
 

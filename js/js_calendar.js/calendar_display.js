@@ -1,13 +1,15 @@
-// DOM要素の取得
-const currentMonthYearEl = document.getElementById('currentMonthYear');
-const calendarBody = document.getElementById('calendarBody');
-const prevMonthBtn = document.getElementById('prevMonthBtn');
-const nextMonthBtn = document.getElementById('nextMonthBtn');
-const dateDetailModal = document.getElementById('dateDetailModal'); // モーダル要素を取得
-const dateDetailModalLabel = document.getElementById('dateDetailModalLabel'); // モーダルのタイトルh4を取得
+// カレンダー表示機能（スコープ分離）
+(function() {
+    // DOM要素の取得
+    const currentMonthYearEl = document.getElementById('currentMonthYear');
+    const calendarBody = document.getElementById('calendarBody');
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
+    const dateDetailModal = document.getElementById('dateDetailModal'); // モーダル要素を取得
+    const dateDetailModalLabel = document.getElementById('dateDetailModalLabel'); // モーダルのタイトルh4を取得
 
-let currentDate = new Date(); // カレンダーの表示月を管理する変数
-const realToday = new Date(); // 今日の日付を保持する固定変数
+    let currentDate = new Date(); // カレンダーの表示月を管理する変数
+    const realToday = new Date(); // 今日の日付を保持する固定変数
 
 // localStorageからイベントデータを生成（calender.htmlのロジックを流用）
 function getEventsFromLocalStorage() {
@@ -307,3 +309,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderCalendar();
 });
+
+})(); // IIFE閉じ括弧
