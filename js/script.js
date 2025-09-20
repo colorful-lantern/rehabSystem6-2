@@ -844,7 +844,7 @@ function displayIconsBasedOnLocalStorage() {
             
             // 回数テキストを追加（x個/y個形式）
             const countText = document.createElement('small');
-            countText.textContent = `${count}個/${reserveCount}個`;
+            countText.textContent = `${count}個すべて達成`;
             countText.style.color = 'green';
             countText.style.fontWeight = 'bold';
             countText.style.marginTop = '2px';
@@ -870,7 +870,7 @@ function displayIconsBasedOnLocalStorage() {
             
             // 回数テキストを追加（x個/y個形式）
             const countText = document.createElement('small');
-            countText.textContent = `${count}個/${reserveCount}個`;
+            countText.textContent = `${reserveCount}個中${count}個達成`;
             countText.style.color = 'gray';
             countText.style.fontWeight = 'bold';
             countText.style.marginTop = '2px';

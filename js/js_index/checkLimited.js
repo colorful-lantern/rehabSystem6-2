@@ -47,18 +47,32 @@
 
         // 制限に引っかかった場合の処理
         if (limitExceeded) {
+            // お休みの日かどうかを判定
+            const isRestDay = window.RestDayManager && typeof window.RestDayManager.isRestDay === 'function' && window.RestDayManager.isRestDay(today);
+            
             // reloadAlertに警告メッセージを表示
             const reloadAlert = document.getElementById('reloadAlert');
             // dateには今日の日付をyyyy-mm-dd形式で表示
             const date = today;
             if (reloadAlert) {
-                reloadAlert.innerHTML = `
-                    <div class="alert alert-warning m-2 text-center">
-                        <i class="bi bi-exclamation-triangle-fill text-black me-2"></i>
-                        <p class="text-center text-black d-inline">予約を上回るリハビリの記録はできません</p>
-                        <button id="reserveBtn" class="btn btn-warning mt-2">予約状況を確認する</button>
-                    </div>
-                `;
+                if (isRestDay) {
+                    // お休みの日の場合の専用メッセージ
+                    reloadAlert.innerHTML = `
+                        <div class="alert alert-warning m-2 text-center">
+                            <i class="bi bi-exclamation-triangle-fill text-black me-2"></i>
+                            <p class="text-center text-black d-inline">お休みの日に記録はできません。<br>記録したい場合は「予約を変更する」から予約を行ってください</p>
+                        </div>
+                    `;
+                } else {
+                    // 通常の予約上限超過の場合のメッセージ
+                    reloadAlert.innerHTML = `
+                        <div class="alert alert-warning m-2 text-center">
+                            <i class="bi bi-exclamation-triangle-fill text-black me-2"></i>
+                            <p class="text-center text-black d-inline">予約を上回るリハビリの記録はできません</p>
+                            <button id="reserveBtn" class="btn btn-warning mt-2">予約状況を確認する</button>
+                        </div>
+                    `;
+                }
                 document.getElementById('reserveBtn').onclick = function() {
                     window.location.href = `reserve.html?date=${date}`;
                 };
