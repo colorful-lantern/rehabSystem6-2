@@ -239,33 +239,45 @@ document.addEventListener('DOMContentLoaded', function() {
       if(targetDate > today){
         const reservationData = localStorage.getItem(`reserve_${date}`);
         if (reservationData) {
-          const sampleText = document.createElement('div');
-          sampleText.className = 'h5 mb-2 text-start';
-          sampleText.textContent = '予約内容';
-          this.append(sampleText);
-          formatReservationText(reservationData).forEach(item => {
-            const rehabNames = {
-              each0: '理学療法',
-              each1: '言語療法',
-              each2: '作業療法',
-              each3: '心理療法',
-              each4: '自主トレーニング'
-            };
-            if (rehabNames[item.key]) {
-              const rehabDiv = document.createElement('div');
-              rehabDiv.className = 'd-flex align-items-center mb-1';
-              rehabDiv.innerHTML = `
-                <i class="bi bi-check-circle-fill me-2" style="color: green; font-size: 1.2rem;"></i>
-                <span style="font-size: 1.1rem;">${rehabNames[item.key]}: ${item.value}つ</span>
-              `;
-              this.append(rehabDiv);
-            }
+          const parsedData = formatReservationText(reservationData);
+          
+          // すべてのリハビリが0つかどうかチェック
+          const isAllZero = parsedData.every(item => {
+            return item.value === '0' || item.value === 'false';
           });
-        const infoText = document.createElement('div');
-        infoText.className = 'text-muted mb-2';
-        infoText.style.fontStyle = 'italic';
-        infoText.style.fontSize = '0.9rem';
-        this.append(infoText);
+          
+          // お休みの日でない場合のみ予約内容を表示
+          if (!isAllZero) {
+            const sampleText = document.createElement('div');
+            sampleText.className = 'h5 mb-2 text-start';
+            sampleText.textContent = '予約内容';
+            this.append(sampleText);
+            
+            parsedData.forEach(item => {
+              const rehabNames = {
+                each0: '理学療法',
+                each1: '言語療法',
+                each2: '作業療法',
+                each3: '心理療法',
+                each4: '自主トレーニング'
+              };
+              if (rehabNames[item.key]) {
+                const rehabDiv = document.createElement('div');
+                rehabDiv.className = 'd-flex align-items-center mb-1';
+                rehabDiv.innerHTML = `
+                  <i class="bi bi-check-circle-fill me-2" style="color: green; font-size: 1.2rem;"></i>
+                  <span style="font-size: 1.1rem;">${rehabNames[item.key]}: ${item.value}つ</span>
+                `;
+                this.append(rehabDiv);
+              }
+            });
+          }
+          
+          const infoText = document.createElement('div');
+          infoText.className = 'text-muted mb-2';
+          infoText.style.fontStyle = 'italic';
+          infoText.style.fontSize = '0.9rem';
+          this.append(infoText);
         }
       }
 

@@ -16,6 +16,9 @@
       </div>
     </nav>
 
+    <!--予約完了時に表示されるアラート用のdiv-->
+    <div id="messageArea"></div>
+
     <div class="calendar-container p-4 pb-1">
         <div class="calendar-header">
             <button id="prevMonthBtn" class="btn"><i class="bi bi-chevron-left fw-bold fs-4"></i></button>
@@ -91,10 +94,10 @@
                 </tr>
                 <tr>
                   <td class="text-center align-middle" style="width: 48px; vertical-align: middle;">
-                    <i class="bi bi-journal-text" style="color: #6f42c1; font-size: 1.5rem;"></i>
+                    <i class="bi bi-clipboard2-check" style="color: #6f42c1; font-size: 1.5rem;"></i>
                   </td>
                   <td class="text-start align-middle fs-6" style="vertical-align: middle;">
-                    自主トレーニングを記録した日です。
+                    リハビリが予約されている日です。
                   </td>
                 </tr>
                 <tr>
@@ -109,7 +112,7 @@
                     <i class="bi bi-moon"></i>
                   </td>
                   <td class="text-start align-middle fs-6" style="vertical-align: middle;">
-                    お休みに設定された日です。
+                    お休みとして予約した日です。
                   </td>
                 </tr>
               </tbody>
@@ -164,6 +167,7 @@
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/js_calendar.js/checkURL.js"></script>
     <script src="js/config.js"></script>
     <script src="js/script.js"></script>
     <!-- <script src="js/self_training_test.js"></script> -->

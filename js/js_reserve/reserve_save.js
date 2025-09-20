@@ -82,32 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // 完了アラート表示
-      const messageArea = document.getElementById('messageArea');
-      const navbar = document.getElementById('navbar');
-      if (messageArea) {
-        messageArea.innerHTML = `
-          <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-            予約が完了しました。${isRestDay ? '<br>休みの日として登録されました。' : ''}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            <button id="goHomeBtn" class="btn btn-success w-50 mt-2">きょうへ戻る</button>
-          </div>
-        `;
-        const goHomeBtn = document.getElementById('goHomeBtn');
-        if (goHomeBtn) {
-          goHomeBtn.onclick = function() {
-            window.location.href = 'index.html';
-          };
-        }
-        // #messageAreaまでスクロール
-        navbar.scrollIntoView({ behavior: 'smooth' });
-        messageArea.style.display = 'block';
-        // 10秒後に自動でアラートを閉じる
-        // setTimeout(() => {
-        //   const alert = bootstrap.Alert.getOrCreateInstance(messageArea.querySelector('.alert'));
-        //   alert.close();
-        // }, 10000);
-      }
+      // 完了後、calendar.html?reserve=trueに自動遷移
+      window.location.href = 'calender.html?reserve=true';
     };
   });
 });

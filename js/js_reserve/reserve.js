@@ -237,6 +237,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // rest=trueパラメータでアクセスされた場合は確実にrestDay=trueに設定
+    const params = new URLSearchParams(window.location.search);
+    const restParam = params.get('rest');
+    if (restParam === 'true') {
+      restDay = true;
+      console.log('rest=trueパラメータによりrestDay=trueに設定');
+    }
+
     // 予約重複チェック
     let alertText = '';
     const key = `reserve_${date}`;
@@ -390,13 +398,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (restParam === 'true') {
         console.log('rest=true検出、お休み予約処理を開始');
         
-        // restDayフラグをリセット
-        restDay = false;
+        // restDayフラグを明示的にtrueに設定（お休みの日として処理）
+        restDay = true;
         
         // 「いいえ」を自動選択
         btnradio2.checked = true;
         btnradio1.checked = false;
         console.log('「いいえ」を選択しました');
+        
+        // リハビリ選択を完全にリセット（既存データに影響されないよう）
+        resetRehabSelections();
+        console.log('リハビリ選択をリセットしました');
         
         updateRehabCardVisibility();
         console.log('カード表示を更新しました');

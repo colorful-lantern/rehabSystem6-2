@@ -202,10 +202,11 @@ function renderCalendar() {
                 
                 let eventHtml = '';
                 
-                // 自主トレーニングのアイコン表示チェック
-                let selfTrainingIcon = '';
-                if (typeof SelfTrainingManager !== 'undefined' && SelfTrainingManager.hasRecord(ymd)) {
-                    selfTrainingIcon = `<i class="bi bi-journal-text" style="color: #6f42c1; font-size: 1.2rem; position: absolute; top: 2px; right: 2px;"></i>`;
+                // 予約データのアイコン表示チェック
+                let reservationIcon = '';
+                const reservationData = localStorage.getItem(`reserve_${ymd}`);
+                if (reservationData) {
+                    reservationIcon = `<i class="bi bi-clipboard2-check" style="color: #6f42c1; font-size: 1.2rem; position: absolute; top: 2px; right: 2px;"></i>`;
                 }
                 
                 if (isRestDay) {
@@ -241,7 +242,7 @@ function renderCalendar() {
                         eventHtml = `<div class="event-content d-flex flex-column justify-content-end align-items-center w-100 position-absolute bottom-0 start-50 translate-middle-x mb-1">${eventMap[ymd]}</div>`;
                     }
                 }
-                cell.innerHTML = `<span class="date-number">${date}</span>${eventHtml}${selfTrainingIcon}`;
+                cell.innerHTML = `<span class="date-number">${date}</span>${eventHtml}${reservationIcon}`;
                 // モーダルをトリガーするための属性を追加
                 cell.setAttribute('data-bs-toggle', 'modal');
                 cell.setAttribute('data-bs-target', '#dateDetailModal');
