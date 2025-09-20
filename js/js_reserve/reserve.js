@@ -144,9 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // 日付が未設定の場合は初期状態
         resetRehabSelections();
       }
-    } else {
+    } else if (btnradio2.checked) {
+      // 「いいえ」選択時は全て「しない」にリセット
       rehabCard.style.display = 'none';
-      // 「いいえ」選択時は通知を非表示
+      resetRehabSelections();
+      // 通知メッセージを非表示
+      showAutoInputNotification(false);
+    } else {
+      // どちらも選択されていない場合
+      rehabCard.style.display = 'none';
+      // 通知メッセージを非表示
       showAutoInputNotification(false);
     }
   }
@@ -154,8 +161,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // 初期状態（どちらも未選択）で非表示
   updateRehabCardVisibility();
 
-  btnradio1.addEventListener('change', updateRehabCardVisibility);
-  btnradio2.addEventListener('change', updateRehabCardVisibility);
+  btnradio1.addEventListener('change', function() {
+    if (btnradio1.checked) {
+      // 「はい」選択時は通常のフロー
+      updateRehabCardVisibility();
+    }
+  });
+  
+  btnradio2.addEventListener('change', function() {
+    if (btnradio2.checked) {
+      // 「いいえ」選択時はrestDayフラグをリセットして休み予約モードに
+      restDay = false;
+      updateRehabCardVisibility();
+    }
+  });
   
   // 日付が変更されたときにも既存データを復元
   dateInput.addEventListener('change', function() {
