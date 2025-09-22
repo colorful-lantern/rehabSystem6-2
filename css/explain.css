@@ -1,0 +1,93 @@
+body {
+            background-color: #c2e2ed; /* 全体の背景色をindex.htmlに合わせる */
+            font-size: 18px; /* 基本フォントサイズを大きくする */
+        }
+        .card-title {
+            font-size: 1.2rem !important; /* カードのタイトル文字の大きさを大きくする */
+            color: black !important; /* タイトル部分の文字色を黒にする */
+            display: flex; /* アイコンとテキストを横並びにする */
+            align-items: center; /* 垂直方向の中央揃え */
+            justify-content: center; /* 水平方向の中央揃え */
+            gap: 10px; /* アイコンとテキストの間隔 */
+        }
+        .card-text {
+            font-size: 1.1rem; /* カード内のテキスト文字の大きさを大きくする */
+            text-align: center; /* カード内のテキストを中央揃えにする */
+            padding-top: 10px; /* カード本文の上のマージン */
+            padding-bottom: 10px; /* カード本文の下のマージン */
+            padding-left: 15px; /* カード本文の左のマージン */
+            padding-right: 15px; /* カード本文の右のマージン */
+        }
+        .card {
+            width: 24rem !important; /* カードの幅を広くする */
+            max-width: 90%; /* レスポンシブ対応のため最大幅を設定 */
+            border-radius: 16px !important; /* カードの角丸を大きくする */
+        }
+        /* アコーディオンのボタンをタイトル表示に合わせるためのスタイル */
+        .accordion-button-custom {
+            width: 100%;
+            text-align: left;
+            background-color: transparent;
+            border: none;
+            padding: 0; /* デフォルトのパディングを削除 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .accordion-button-custom:focus {
+            box-shadow: none; /* フォーカス時の影を削除 */
+        }
+        .accordion-button-custom .card-title {
+            margin-bottom: 0; /* カードタイトル内のマージンを削除 */
+            width: 100%; /* タイトルが占める幅を最大にする */
+            /* text-align: center; */ /* flexboxでjustify-content: centerを使っているので不要 */
+            padding-top: 10px; /* カードタイトルに上部のパディングを追加 */
+            padding-bottom: 10px; /* カードタイトルに下部のパディングを追加 */
+        }
+        .accordion-button-custom i {
+            transition: transform 0.3s ease-in-out; /* アイコンの回転アニメーション */
+        }
+        .accordion-button-custom.collapsed i {
+            transform: rotate(0deg); /* 閉じているときは下向き */
+        }
+        /* アコーディオンが開いている場合でもアイコンを回転させない */
+        .accordion-button-custom:not(.collapsed) i {
+            transform: rotate(0deg); /* 開いているときも回転させない */
+        }
+        .card-body.accordion-header {
+            padding-bottom: 0; /* ヘッダー部分のパディングを調整 */
+            text-align: center; /* カードボディ全体を中央揃えにする */
+            padding-top: 0; /* Bootstrapのデフォルトパディングをリセット */
+            padding-left: 1rem; /* 左右のパディングを追加 */
+            padding-right: 1rem; /* 左右のパディングを追加 */
+        }
+        /* アラート内のテキストも中央揃えにする */
+        .alert .row-cols-11 {
+            text-align: center;
+            display: flex; /* flexboxを使って中央揃えを維持 */
+            justify-content: center; /* 水平方向の中央揃え */
+            align-items: center; /* 垂直方向の中央揃え */
+        }
+        .alert .row-cols-1 {
+            text-align: center;
+        }
+        /* ネストされたカードのスタイル */
+        .card .card-body .card {
+            margin-top: 10px; /* 親カード内の子カードの上マージン */
+            margin-bottom: 10px; /* 親カード内の子カードの下マージン */
+            border-radius: 12px !important; /* ネストされたカードの角丸も少し大きくする */
+            margin-left: auto; /* ネストされたカードを中央揃えにする */
+            margin-right: auto; /* ネストされたカードを中央揃えにする */
+        }
+        .app-feature-item {
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 5px 0;
+            margin-bottom: 0;
+        }
+        .app-feature-item strong {
+            font-size: 1.2rem;
+            display: block; /* 画面名と説明を縦に並べる */
+            margin-bottom: 5px; /* 画面名と説明の間隔 */
+        }

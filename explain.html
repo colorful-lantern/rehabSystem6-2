@@ -7,101 +7,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/explain.css">
     <title>マイリハビリ-使い方</title>
     <style>
-        body {
-            background-color: #c2e2ed; /* 全体の背景色をindex.htmlに合わせる */
-            font-size: 18px; /* 基本フォントサイズを大きくする */
-        }
-        .card-title {
-            font-size: 1.2rem !important; /* カードのタイトル文字の大きさを大きくする */
-            color: black !important; /* タイトル部分の文字色を黒にする */
-            display: flex; /* アイコンとテキストを横並びにする */
-            align-items: center; /* 垂直方向の中央揃え */
-            justify-content: center; /* 水平方向の中央揃え */
-            gap: 10px; /* アイコンとテキストの間隔 */
-        }
-        .card-text {
-            font-size: 1.1rem; /* カード内のテキスト文字の大きさを大きくする */
-            text-align: center; /* カード内のテキストを中央揃えにする */
-            padding-top: 10px; /* カード本文の上のマージン */
-            padding-bottom: 10px; /* カード本文の下のマージン */
-            padding-left: 15px; /* カード本文の左のマージン */
-            padding-right: 15px; /* カード本文の右のマージン */
-        }
-        .card {
-            width: 24rem !important; /* カードの幅を広くする */
-            max-width: 90%; /* レスポンシブ対応のため最大幅を設定 */
-            border-radius: 16px !important; /* カードの角丸を大きくする */
-        }
-        /* アコーディオンのボタンをタイトル表示に合わせるためのスタイル */
-        .accordion-button-custom {
-            width: 100%;
-            text-align: left;
-            background-color: transparent;
-            border: none;
-            padding: 0; /* デフォルトのパディングを削除 */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-        .accordion-button-custom:focus {
-            box-shadow: none; /* フォーカス時の影を削除 */
-        }
-        .accordion-button-custom .card-title {
-            margin-bottom: 0; /* カードタイトル内のマージンを削除 */
-            width: 100%; /* タイトルが占める幅を最大にする */
-            /* text-align: center; */ /* flexboxでjustify-content: centerを使っているので不要 */
-            padding-top: 10px; /* カードタイトルに上部のパディングを追加 */
-            padding-bottom: 10px; /* カードタイトルに下部のパディングを追加 */
-        }
-        .accordion-button-custom i {
-            transition: transform 0.3s ease-in-out; /* アイコンの回転アニメーション */
-        }
-        .accordion-button-custom.collapsed i {
-            transform: rotate(0deg); /* 閉じているときは下向き */
-        }
-        /* アコーディオンが開いている場合でもアイコンを回転させない */
-        .accordion-button-custom:not(.collapsed) i {
-            transform: rotate(0deg); /* 開いているときも回転させない */
-        }
-        .card-body.accordion-header {
-            padding-bottom: 0; /* ヘッダー部分のパディングを調整 */
-            text-align: center; /* カードボディ全体を中央揃えにする */
-            padding-top: 0; /* Bootstrapのデフォルトパディングをリセット */
-            padding-left: 1rem; /* 左右のパディングを追加 */
-            padding-right: 1rem; /* 左右のパディングを追加 */
-        }
-        /* アラート内のテキストも中央揃えにする */
-        .alert .row-cols-11 {
-            text-align: center;
-            display: flex; /* flexboxを使って中央揃えを維持 */
-            justify-content: center; /* 水平方向の中央揃え */
-            align-items: center; /* 垂直方向の中央揃え */
-        }
-        .alert .row-cols-1 {
-            text-align: center;
-        }
-        /* ネストされたカードのスタイル */
-        .card .card-body .card {
-            margin-top: 10px; /* 親カード内の子カードの上マージン */
-            margin-bottom: 10px; /* 親カード内の子カードの下マージン */
-            border-radius: 12px !important; /* ネストされたカードの角丸も少し大きくする */
-            margin-left: auto; /* ネストされたカードを中央揃えにする */
-            margin-right: auto; /* ネストされたカードを中央揃えにする */
-        }
-        .app-feature-item {
-            font-size: 1.1rem;
-            text-align: center;
-            padding: 5px 0;
-            margin-bottom: 0;
-        }
-        .app-feature-item strong {
-            font-size: 1.2rem;
-            display: block; /* 画面名と説明を縦に並べる */
-            margin-bottom: 5px; /* 画面名と説明の間隔 */
-        }
+        
     </style>
   </head>
   <body>
@@ -194,16 +103,7 @@
             <div class="card" id="rank-system-explanation-card">
               <div class="card-body">
                 <h6 class="card-title"><i class="bi bi-award fs-4"></i> ランクシステム</h6>
-                <p class="card-text">1日に取り組むすべてのリハビリを行うと1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
-                
-                <!-- ポイント表示アニメーション -->
-                <!-- <div class="alert alert-success m-1 p-2">
-                  <div class="text-center">
-                    <div id="animated-points-display" style="font-size: 1.1rem; font-weight: bold; transition: opacity 0.4s ease-in-out;">
-                       アニメーション表示がここに挿入されます 
-                    </div>
-                  </div>
-                </div> -->
+                <p class="card-text">その日に予約したすべてのリハビリを行うと1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
                 
                 <!-- ランク一覧 -->
                 <div class="alert alert-info m-1 p-2">
@@ -243,19 +143,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 使い方 -->
-      <!-- <div class="card m-2">
-        <div class="card-body accordion-header">
-          <button class="accordion-button-custom" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAppFeature3" aria-expanded="false" aria-controls="collapseAppFeature3">
-            <h5 class="card-title"><i class="bi bi-question-circle fs-4"></i> 使い方</h5>
-            <i class="bi bi-chevron-down fs-4 text-black"></i>
-          </button>
-          <div id="collapseAppFeature3" class="collapse">
-            <p class="card-text"></p>
-          </div>
-        </div>
-      </div> -->
 
       <!-- 設定 -->
       <div class="card m-2">
@@ -322,194 +209,8 @@
     </div>
     <div style="height: 200px;"></div>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // カスタムアコーディオンボタンをすべて取得
-            var accordionButtons = document.querySelectorAll('.accordion-button-custom');
-
-            accordionButtons.forEach(function(button) {
-                var targetId = button.getAttribute('data-bs-target');
-                var collapseElement = document.querySelector(targetId);
-                var icon = button.querySelector('i');
-
-                // 初期状態に応じてアイコンの向きを設定
-                if (collapseElement.classList.contains('show')) {
-                    button.classList.remove('collapsed');
-                    icon.style.transform = 'rotate(0deg)'; // 開いているときも回転させない
-                } else {
-                    button.classList.add('collapsed');
-                    icon.style.transform = 'rotate(0deg)';
-                }
-
-                // Bootstrapのcollapseイベントにリスナーを追加
-                collapseElement.addEventListener('show.bs.collapse', function () {
-                    icon.style.transform = 'rotate(0deg)'; // 開いたときに回転させない
-                    button.classList.remove('collapsed');
-                });
-
-                collapseElement.addEventListener('hide.bs.collapse', function () {
-                    icon.style.transform = 'rotate(0deg)'; // 閉じたときに回転させない
-                    button.classList.add('collapsed');
-                });
-            });
-            
-            // ポイント表示アニメーションの初期化
-            initializePointsAnimation();
-        });
-        
-        // ポイント表示アニメーション機能
-        function initializePointsAnimation() {
-            const animatedDisplay = document.getElementById('animated-points-display');
-            if (!animatedDisplay) return;
-            
-            let animationState = 0; // 0: 次のランクまで, 1: 合計ポイント, 2: 現在ステージ進捗
-            let animationInterval;
-            
-            // ランク関連の計算（簡易版）
-            function getPointsData() {
-                try {
-                    // localStorage から合計ポイントを計算
-                    let totalRehab = 0;
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('status_')) {
-                            const statusValue = localStorage.getItem(key);
-                            if (statusValue) {
-                                const parts = statusValue.split(',');
-                                const countPart = parts[0];
-                                
-                                if (countPart === 'clear') {
-                                    const eachCount = parts.filter(part => part.includes('=true')).length;
-                                    totalRehab += eachCount;
-                                } else {
-                                    const number = parseInt(countPart, 10);
-                                    if (!isNaN(number)) {
-                                        totalRehab += number;
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    
-                    // ランク計算
-                    let currentRank = 'ビギナー';
-                    let nextRank = 'ブロンズ';
-                    let rankProgress = { current: totalRehab, required: 10 };
-                    let nextRankColor = '#b8860b';
-                    
-                    if (totalRehab >= 100) {
-                        currentRank = 'プラチナ';
-                        nextRank = null;
-                        rankProgress = { current: totalRehab, required: 100 };
-                        nextRankColor = '#4a4a4a';
-                    } else if (totalRehab >= 60) {
-                        currentRank = 'ゴールド';
-                        nextRank = 'プラチナ';
-                        rankProgress = { current: totalRehab - 60, required: 40 };
-                        nextRankColor = '#4a4a4a';
-                    } else if (totalRehab >= 30) {
-                        currentRank = 'シルバー';
-                        nextRank = 'ゴールド';
-                        rankProgress = { current: totalRehab - 30, required: 30 };
-                        nextRankColor = '#daa520';
-                    } else if (totalRehab >= 10) {
-                        currentRank = 'ブロンズ';
-                        nextRank = 'シルバー';
-                        rankProgress = { current: totalRehab - 10, required: 20 };
-                        nextRankColor = '#708090';
-                    } else {
-                        currentRank = 'ビギナー';
-                        nextRank = 'ブロンズ';
-                        rankProgress = { current: totalRehab, required: 10 };
-                        nextRankColor = '#b8860b';
-                    }
-                    
-                    return {
-                        totalPoints: totalRehab,
-                        currentRank,
-                        nextRank,
-                        rankProgress,
-                        nextRankColor,
-                        remaining: nextRank ? (rankProgress.required - rankProgress.current) : 0
-                    };
-                } catch (e) {
-                    // エラー時のフォールバック
-                    return {
-                        totalPoints: 0,
-                        currentRank: 'ビギナー',
-                        nextRank: 'ブロンズ',
-                        rankProgress: { current: 0, required: 10 },
-                        nextRankColor: '#b8860b',
-                        remaining: 10
-                    };
-                }
-            }
-            
-            function updateDisplay() {
-                const data = getPointsData();
-                let content = '';
-                
-                switch(animationState) {
-                    case 0: // 次のランクまでの残りポイント
-                        if (data.nextRank && data.remaining > 0) {
-                            content = `<span class="badge rounded-pill text-white" style="background-color: ${data.nextRankColor}; font-size: 1.0rem;">${data.nextRank}</span>ランクまで<br><span style="font-size: 1.8rem; font-weight: bold; color: ${data.nextRankColor};">${data.remaining}</span>ポイント`;
-                        } else {
-                            content = '<span style="font-size: 1.5rem; color: #4a4a4a;">🏆 最高ランク到達！</span>';
-                        }
-                        break;
-                    case 1: // 合計ポイント
-                        content = `合計<span style="font-size: 1.8rem; font-weight: bold; color: #28a745;">${data.totalPoints}</span>ポイント`;
-                        break;
-                    case 2: // 現在ステージの進捗
-                        if (data.currentRank !== 'プラチナ') {
-                            content = `<span style="font-size: 1.8rem; font-weight: bold; color: #007bff;">${data.rankProgress.current}</span><span style="font-size: 1.2rem; color: #6c757d;">/${data.rankProgress.required}</span><span style="font-size: 1.2rem; color: #6c757d;">ポイント</span>`;
-                        } else {
-                            content = '<span style="font-size: 1.5rem; color: #4a4a4a;">🏆 最高ランク！</span>';
-                        }
-                        break;
-                }
-                
-                return content;
-            }
-            
-            function startAnimation() {
-                // 初期表示
-                animatedDisplay.innerHTML = updateDisplay();
-                
-                animationInterval = setInterval(() => {
-                    // フェードアウト
-                    animatedDisplay.style.opacity = '0';
-                    
-                    setTimeout(() => {
-                        // 状態を次に進める（0 → 1 → 2 → 0...）
-                        animationState = (animationState + 1) % 3;
-                        
-                        // 新しいコンテンツに更新
-                        animatedDisplay.innerHTML = updateDisplay();
-                        
-                        // フェードイン
-                        animatedDisplay.style.opacity = '1';
-                    }, 400); // フェードアウト完了後
-                }, 3000); // 3秒ごとに切り替え
-            }
-            
-            // アコーディオンが開かれたときにアニメーション開始
-            const collapseElement = document.getElementById('collapseAppFeature1');
-            if (collapseElement) {
-                collapseElement.addEventListener('shown.bs.collapse', function () {
-                    startAnimation();
-                });
-                
-                collapseElement.addEventListener('hidden.bs.collapse', function () {
-                    if (animationInterval) {
-                        clearInterval(animationInterval);
-                        animationInterval = null;
-                    }
-                });
-            }
-        }
-    </script>
-    
     <!-- 自主トレーニング機能用スクリプト -->
+    <script src="js_explain/explain.js"></script>
     <script src="js/config.js"></script>
     <script src="js/self_training_test.js"></script>
   </body>
