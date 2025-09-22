@@ -724,6 +724,8 @@ window.testCounterSystem = function() {
 
 // localstrage のkey=rehabilitation1~4のvalueを取得して、設定を確認する
 function loadCheckboxStates() {
+    // 変数dateは、yyyy-mm-dd形式で格納
+    let date = new Date().toISOString().split('T')[0];
     let cnt = 0;
     for (let i = 1; i <= 4; i++) {
         const key = `rehabilitation${i}`;
@@ -740,7 +742,7 @@ function loadCheckboxStates() {
         if (!confirm('OKを押して、次の画面で予約を行います\nはじめてではない方は、キャンセルを押してください。')) {
             alert('いつもと違うブラウザーでアクセスしている可能性があります。いつもと同じブラウザーでアクセスしてください。');
         }
-        location.href = 'reserve.html';
+        location.href = 'reserve.html?date=' + date;
         return;
     }
 }

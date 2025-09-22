@@ -82,8 +82,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // 完了後、calendar.html?reserve=trueに自動遷移
-      window.location.href = 'calender.html?reserve=true';
+      // // 完了後、calendar.html?reserve=trueに自動遷移
+      // window.location.href = 'reserve.html';
+
+      // 完了したら、新しいモーダルに「予約完了」を表示
+      // 3秒後に自動的にindex.htmlに遷移する
+      
+
+      // 予約完了モーダルの定義
+      let completeModalElement = document.getElementById('completeModal');
+      if (!completeModalElement) {
+        // モーダル要素が存在しない場合は作成する
+        const modalHtml = `
+          <div class="modal fade" id="completeModal" tabindex="-1" aria-labelledby="completeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+          <h5 class="modal-title" id="completeModalLabel">予約完了</h5>
+            </div>
+            <div class="modal-body">
+          予約が完了しました。<br>3秒後にトップページに移動します。
+            </div>
+          </div>
+        </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        completeModalElement = document.getElementById('completeModal');
+      }
+      const completeModal = new bootstrap.Modal(document.getElementById('completeModal'));
+      completeModal.show();
+      setTimeout(() => {
+        completeModal.hide();
+        window.location.href = 'index.html';
+      }, 3000);
     };
   });
 });
