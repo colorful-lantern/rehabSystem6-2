@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>マイリハビリ-きょう</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #c2e2ed;
+            font-size: 16px;
+        }
+
+        #generalstatus {
+            border-radius: 16px;
+            padding-bottom: 0;
+            position: relative;
+            overflow: hidden;
+            min-height: 350px;
+            background: none !important;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.125rem;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #dividestatus,
+        #iconlegendstatus,
+        #rankstatus,
+        #Message {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 16px 16px 16px 16px;
+            padding-bottom: 0.75rem;
+        }
+
+        #container {
+            background: #fff;
+            border-radius: 50%;
+            display: inline-block;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            width: 70vw;
+            height: 70vw;
+            max-width: 18.75rem;
+            max-height: 18.75rem;
+            position: relative; /* 紙吹雪エリアの位置基準用 */
+        }
+
+        .eachcontainer {
+            background: #fff;
+            border-radius: 0.75rem;
+            margin: 0.25rem 0;
+            min-height: 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0.5rem;
+        }
+
+        #generalstatus,
+        #generalstatus *:not(i):not(.bi):not(.navbar):not(.navbar-brand):not(nav):not(#footer):not(.fixed-bottom):not(.btn) {
+            font-size: 1.3rem;
+        }
+        #generalstatus .fw-bold,
+        #generalstatus .m-auto.fw-bold.mb-2 {
+            font-size: 1.1rem;
+        }
+        #generalstatus .eachcontainer {
+            font-size: 1.05rem;
+        }
+        #dividestatus span {
+            font-size: 0.92em !important;
+        }
+
+        /* 自主トレーニングボタンのスタイル */
+        .self-training-btn-default {
+            border-radius: 8px;
+            font-size: 1rem;
+            padding: 0.6rem;
+            background-color: #f0f0f0;
+            border-color: #dddddd;
+            color: #808080;
+            font-weight: bold;
+        }
+        
+        .self-training-btn-completed {
+            border-radius: 8px;
+            font-size: 1rem;
+            padding: 0.6rem;
+            background-color: #e6f7e6;
+            border-color: #d1f2d1;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        /* 現在のランク表示用の吹き出しスタイル */
+        .current-rank-indicator {
+            position: relative;
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: #495057;
+            color: white;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            margin-top: 8px;
+            white-space: nowrap;
+        }
+        
+        .current-rank-indicator::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--indicator-color, #495057);
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg" style="background-color: #c2e2ed;">
+      <div class="container-fluid d-flex m-auto">
+        <p class="navbar-brandfw-bold fw-bold fs-3 text-black ms-1 my-1 me-0" id="title">マイリハビリ</p>
+      </div>
+    </nav>
+
+    <!-- 予約を喚起するメッセージ -->
+    <div id="Message" role="alert" class="p-4 my-2 text-center" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+      <div class="h5 text-center m-2">
+        <i class="bi bi-exclamation-triangle-fill" style="color: orange;"></i> きょうのリハビリを予約しましょう
+      </div>
+      <div id="textMessage"></div>
+      <div class="text-center m-2" style="font-size: 1rem; color: #666;">きょうのリハビリの予約がまだのため<br><b>リハビリを記録できません。</b><br>下のボタンから予約を行ってください。</div>
+      <a class="btn btn-primary m-2 w-75" id="goReserveBtn" style="border-radius: 8px; font-size: 1rem;">
+        <i class="bi bi-calendar2-plus me-2"></i>きょうのリハビリをよやくする
+      </a>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const btn = document.getElementById('goReserveBtn');
+          if (btn) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        btn.href = `reserve.html?date=${dateStr}#dayselectCard`;
+          }
+        });
+      </script>
+    </div>
+      <div id="rankstatus" class="p-2 my-2 text-center" style="max-width: 90%; margin: 0 auto; min-width: 16.25rem;">
+        <div class="container-fluid">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold" style="font-size: 1.2rem;">あなたのランク</span>
+            <span class="fw-bold badge rounded-pill" style="font-size: 1.4rem;"></span>
+          </div>
+          <div class="progress mb-1 mt-3" style="height: 10px;">
+            <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex align-baseline justify-content-end m-0 p-0" style="font-size: 1rem; color: #666; transition: opacity 0.4s ease-in-out;"></div>
+          
+          <!-- バッジを見るボタン -->
+          <div class="mt-3 mb-2" id="rank-info">
+            <div class="text-center">
+              <button id="rankDetailsBtn" class="btn btn-primary w-75" style="border-radius: 8px; font-size: 1rem;">
+                <i class="bi bi-award me-2"></i>バッジを見る
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- ランク詳細モーダル -->
+    <div class="modal fade" id="rankDetailsModal" tabindex="-1" aria-labelledby="rankDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="rankDetailsModalLabel">
+              <i class="bi bi-award me-2" style="color: #daa520;"></i>
+              ランク・バッジ詳細
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- ランク一覧テーブル -->
+            <div class="mb-4">
+              <div class="text-start mb-3">
+                <span class="fw-bold" style="font-size: 1.3rem;">ランク一覧</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-borderless m-auto" style="max-width: 400px;">
+                  <tbody>
+                    <tr id="rank-names-row-modal">
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 0.9rem;">ビギナー</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 0.9rem;">ブロンズ</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 0.9rem;">シルバー</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 0.9rem;">ゴールド</span></td>
+                      <td class="text-center p-1"><span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 0.9rem;">プラチナ</span></td>
+                    </tr>
+                    <tr id="rank-status-row-modal">
+                      <!-- ランクアイコン/ステータスがここに動的に挿入されます -->
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- ランクについてのアコーディオン -->
+            <div class="mt-3">
+              <div class="container-fluid m-0 p-0">
+                <button class="btn btn-link text-secondary fw-bold ms-1" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#rank-explanation-modal"
+                  aria-expanded="false" aria-controls="rank-explanation-modal"
+                  style="text-decoration:none; font-size:1.2rem;">
+                  ランクについて <span id="rank-explanation-arrow-modal">▼</span>
+                </button>
+                <div class="collapse" id="rank-explanation-modal">
+                  <div class="card mt-2" style="border-radius: 12px;">
+                    <div class="card-body">
+                      <h6 class="card-title text-center"><i class="bi bi-award fs-4"></i> ランクシステム</h6>
+                      <p class="card-text text-center" style="font-size: 1.1rem;">1日のリハビリをすべて完了すると1ポイントたまります。<br>合計ポイントに応じて、5つのランクが用意されています。</p>
+                      
+                      <!-- ランク一覧 -->
+                      <div class="alert alert-info m-1 p-3">
+                        <div class="text-center">
+                          <strong style="font-size: 1.1rem;">ランク一覧</strong><br>
+                          <div style="font-size: 1rem; line-height: 2; margin-top: 12px;">
+                            <span class="badge rounded-pill text-white" style="background-color: #495057; font-size: 1rem;">ビギナー</span>：0〜9ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #b8860b; font-size: 1rem;">ブロンズ</span>：10〜29ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #708090; font-size: 1rem;">シルバー</span>：30〜59ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #daa520; font-size: 1rem;">ゴールド</span>：60〜99ポイント<br>
+                            <span class="badge rounded-pill text-white" style="background-color: #4a4a4a; font-size: 1rem;">プラチナ</span>：100ポイント以上
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer" class="container-fluid">
+      <div class="fixed-bottom bg-white m-auto"
+           style="border-radius: 26px; left: 0; right: 0; width: 95%; max-width: 600px; bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
+        <div class="row m-auto p-0" style="border-radius: 16px;">
+          <div class="col-4 text-center d-flex align-items-center justify-content-center">
+            <div id="homebtn" class="text-center m-auto">
+              <a href="index.html" class="btn btn-link text-primary text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-house-fill fw-bold" style="font-size: 2rem;"></i><br>
+              きょう</a>
+            </div>
+          </div>
+          <div class="col-4 text-center d-flex align-items-center justify-content-center">
+            <div id="calbtn" class="text-center m-auto">
+              <a href="calender.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+                <i class="bi bi-calendar2-week fw-bold" style="font-size: 2rem;"></i><br>
+              きろく・よやく</a>
+            </div>
+          </div>
+          <div class="col-4 text-center d-flex align-items-center justify-content-center">
+            <div id="settingbtn" class="text-center m-auto">
+              <a href="setting.html" class="btn btn-link text-black text-decoration-none text-nowrap" style="font-size: 1.2rem;">
+              <i class="bi bi-gear-fill fw-bold" style="font-size: 2rem;"></i><br>
+              設定</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height: 200px;"></div>
+
+    
+    <!-- <script src="js/config.js"></script> -->
+    <!-- <script src="js/progressbar.js"></script> -->
+    <!-- <script src="js/js_index/checkURL.js"></script> -->
+    <!-- <script src="js/js_index/checkReserve.js"></script>
+    <script src="js/js_index/checkLimited.js"></script>-->
+    <script src="js/script.js"></script>
+    <!-- <script src="js/self_training_test.js"></script> -->
+    
+    
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // アクセスした日付をローカルストレージのkey=lastAccessTimeにtoString()で保存
+            const today = new Date();
+            localStorage.setItem('lastAccessTime', today.getTime());
+
+            const confettiContainer = document.getElementById('cracker-animation-area-card');
+            const generalStatus = document.getElementById('generalstatus');
+            let confettiIntervalId = null;
+
+            const confettiColors = [
+                '#FFD700', '#FF69B4', '#00CED1', '#7FFF00', '#FF8C00', '#9370DB', 
+                '#FFFF00', '#ADFF2F', '#1E90FF', '#FA8072', '#BA55D3', '#00FA9A', 
+                '#FFDAB9', '#6495ED', '#FFDEAD'
+            ];
+
+            function createConfetti() {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.backgroundColor = confettiColors[anime.random(0, confettiColors.length - 1)];
+                
+                // 円の上部からランダムな水平位置で開始
+                confetti.style.left = `${anime.random(0, confettiContainer.offsetWidth - 8)}px`;
+                confetti.style.top = `-10px`;
+                confettiContainer.appendChild(confetti);
+
+                anime({
+                    targets: confetti,
+                    translateY: confettiContainer.offsetHeight + 10, // 上から下へ落下
+                    translateX: anime.random(-20, 20), // 少し左右に揺れる
+                    rotate: anime.random(0, 720), // 回転
+                    opacity: [1, 0.5, 0], // 透明度変化
+                    duration: anime.random(1000, 2000), // 落下時間を短縮（速度アップ）
+                    easing: 'linear', // 自由落下
+                    complete: function(anim) {
+                        anim.animatables[0].target.remove();
+                    }
+                });
+            }
+
+            const checkAndTriggerConfetti = () => {
+                const nmboftrue = parseInt(localStorage.getItem('nmboftrue'), 10);
+                const numberofClass = parseInt(localStorage.getItem('numberofClass'), 10);
+                const conditionMet = !isNaN(nmboftrue) && !isNaN(numberofClass) && nmboftrue === numberofClass;
+
+                if (conditionMet) {
+                    confettiContainer.style.display = 'block';
+                    document.body.style.backgroundImage = 'none';
+                    document.body.style.backgroundColor = '#c2e2ed';
+
+                    if (confettiIntervalId === null) {
+                        confettiIntervalId = setInterval(createConfetti, 120); // 間隔を短くして数を増やす
+                    }
+                } else {
+                    confettiContainer.style.display = 'none';
+                    document.body.style.backgroundColor = '#c2e2ed';
+                    document.body.style.backgroundImage = 'radial-gradient(circle, #ffffff 12px, transparent 5px),';
+                    document.body.style.backgroundSize = '40px 40px, 60px 60px, 90px 90px';
+                    document.body.style.backgroundPosition = '0 0, 20px 20px, 45px 45px';
+
+                    if (confettiIntervalId !== null) {
+                        clearInterval(confettiIntervalId);
+                        confettiIntervalId = null;
+                        const existingConfetti = confettiContainer.querySelectorAll('.confetti');
+                        existingConfetti.forEach(c => c.remove());
+                    }
+                }
+            };
+
+            checkAndTriggerConfetti();
+            
+            // 休日当日の表示制御を最初に実行
+            if (typeof handleRestDayDisplay === 'function') {
+                try {
+                    handleRestDayDisplay();
+                } catch (error) {
+                    console.error('休日表示処理エラー:', error);
+                }
+            }
+            
+            // 注意: 連続記録メッセージと節目メッセージの表示は
+            // script.jsのDOMContentLoadedイベントで一元管理されます
+            
+            setInterval(() => {
+                checkAndTriggerConfetti();
+                // 節目メッセージは定期更新しない（その日の間は固定表示）
+            }, 5000);
+        });
+    </script>
+     -->
+    <!-- ランク詳細モーダル用スクリプト -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ランク詳細ボタンとモーダルの初期化
+            const rankDetailsBtn = document.getElementById('rankDetailsBtn');
+            const rankDetailsModal = new bootstrap.Modal(document.getElementById('rankDetailsModal'));
+            
+            // ボタンクリックでモーダル表示
+            if (rankDetailsBtn) {
+                rankDetailsBtn.addEventListener('click', function() {
+                    // モーダル内のランクステータス行を更新
+                    updateModalRankStatus();
+                    rankDetailsModal.show();
+                });
+            }
+            
+            // モーダル内のランクステータスを更新する関数
+            function updateModalRankStatus() {
+                const modalRankStatusRow = document.getElementById('rank-status-row-modal');
+                
+                if (modalRankStatusRow) {
+                    // script.jsの関数を直接呼び出してランクアイコンを生成
+                    if (typeof updateIndexRankDisplay === 'function') {
+                        // 一時的にメインページの要素を作成してランクアイコンを生成
+                        const tempElement = document.createElement('tr');
+                        tempElement.id = 'rank-status-row-index';
+                        document.body.appendChild(tempElement);
+                        
+                        // ランク表示を更新
+                        updateIndexRankDisplay();
+                        
+                        // 生成されたコンテンツをモーダルにコピー
+                        modalRankStatusRow.innerHTML = tempElement.innerHTML;
+                        
+                        // 一時要素を削除
+                        document.body.removeChild(tempElement);
+                    } else {
+                        // フォールバック: 基本的なランクアイコンを表示
+                        generateBasicRankIcons(modalRankStatusRow);
+                    }
+                }
+            }
+            
+            // 基本的なランクアイコンを生成する関数（フォールバック用）
+            function generateBasicRankIcons(targetRow) {
+                const ranks = [
+                    { name: 'ビギナー', icon: '🥉', color: '#495057' },
+                    { name: 'ブロンズ', icon: '🥉', color: '#b8860b' },
+                    { name: 'シルバー', icon: '🥈', color: '#708090' },
+                    { name: 'ゴールド', icon: '🥇', color: '#daa520' },
+                    { name: 'プラチナ', icon: '👑', color: '#4a4a4a' }
+                ];
+                
+                let html = '';
+                ranks.forEach((rank, index) => {
+                    html += `<td class="text-center p-1">
+                        <span style="font-size: 1.5rem;">${rank.icon}</span>
+                    </td>`;
+                });
+                
+                targetRow.innerHTML = html;
+            }
+            
+            // モーダル内のアコーディオン制御
+            const collapseElModal = document.getElementById('rank-explanation-modal');
+            const arrowModal = document.getElementById('rank-explanation-arrow-modal');
+            
+            if (collapseElModal && arrowModal) {
+                collapseElModal.addEventListener('show.bs.collapse', function () {
+                    arrowModal.textContent = '▲';
+                });
+                collapseElModal.addEventListener('hide.bs.collapse', function () {
+                    arrowModal.textContent = '▼';
+                });
+            }
+        });
+    </script>
+    
+    <!-- <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var collapseEl = document.getElementById('icon-legend');
+        var arrow = document.getElementById('icon-legend-arrow');
+        collapseEl.addEventListener('show.bs.collapse', function () {
+          arrow.textContent = '▲';
+        });
+        collapseEl.addEventListener('hide.bs.collapse', function () {
+          arrow.textContent = '▼';
+        });
+      });
+    </script> -->
+  </body>
+</html>
